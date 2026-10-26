@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420" role="img" aria-label="Есептің түсіндірме сызбасы"><defs><linearGradient id="shade" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#344d71"/><stop offset="1" stop-color="#607a9e"/></linearGradient><linearGradient id="light" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#edf4ff"/><stop offset="1" stop-color="#dbe8f8"/></linearGradient></defs><rect x="1" y="1" width="978" height="418" rx="22" fill="#f9fbff" stroke="#e4eafb" stroke-width="2"/>
+<g stroke="#283e5e" stroke-width="3" stroke-linejoin="round">
+<!-- prism front, side, top -->
+<path d="M138 188L628 188L760 100L270 100Z" fill="#536b8f"/>
+<path d="M628 188L760 100L760 285L628 371Z" fill="#344c71"/>
+<path d="M138 188H628V371H138Z" fill="#7890b0"/>
+<!-- missing cube shown as white cutout at front right -->
+<path d="M516 256L628 188V320L516 389Z" fill="#f5f8fc"/>
+<path d="M440 256L516 256L628 188H552Z" fill="#fff"/>
+<path d="M440 256H516V389H440Z" fill="#fff"/>
+<path d="M440 256L552 188" fill="none" stroke-dasharray="10 8"/>
+</g>
+<g font-family="Arial,sans-serif" font-size="25" fill="#1b3554" font-weight="700"><text x="370" y="403">a = 12 см</text><text x="710" y="208">6 см</text><text x="98" y="293">c = 4 см</text><text x="445" y="245" font-size="19">Кесілген куб</text></g>
+</svg>

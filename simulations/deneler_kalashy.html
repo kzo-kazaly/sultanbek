@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Денелер қалашы: күрделі кеңістіктік ойлау</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@700&display=swap">
+<style>
+:root{--bg:#f6f4fa;--paper:#fff;--grid:#e0d9ee;--tx:#2a2140;--mu:#6c6384;--ac:#6d28d9;--sh:#ddd1f7;--ok:#15803d;--bad:#c62828;--bd:#cfc6e3;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15101f;--paper:#1e1730;--grid:#2b2342;--tx:#ece6fa;--mu:#a79cc4;--ac:#b794ff;--sh:#4a3a85;--ok:#4ade80;--bad:#ff7b7b;--bd:#3d3260}}
+:root[data-theme="dark"]{--bg:#15101f;--paper:#1e1730;--grid:#2b2342;--tx:#ece6fa;--mu:#a79cc4;--ac:#b794ff;--sh:#4a3a85;--ok:#4ade80;--bad:#ff7b7b;--bd:#3d3260}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg) linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px;color:var(--tx);font:16px/1.45 "PT Sans",system-ui,sans-serif;min-height:100vh}
+main{max-width:1040px;margin:0 auto;padding:18px 14px 40px}
+h1{font:700 clamp(22px,4.5vw,32px)/1.15 "PT Serif",Georgia,serif;margin:4px 0}
+.sub,.stat,small{color:var(--mu)}.sub{margin:0 0 14px}small{font-size:13.5px}.stat b{color:var(--tx)}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs,.lvs,.vb{display:flex;flex-wrap:wrap;gap:6px}
+button,select{font:inherit;color:var(--tx);background:var(--paper);border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ac)}button:focus-visible,select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button.on{background:var(--ac);border-color:var(--ac);color:var(--paper)}
+.wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:14px}
+.card{min-width:0;background:var(--paper);border:1.5px solid var(--bd);border-radius:12px;padding:12px}
+#stage{position:relative;overflow:hidden;border-radius:8px;border:1.5px solid var(--bd);touch-action:none;cursor:grab;background:var(--bg)}
+#stage canvas{display:block;max-width:100%}
+.badge{position:absolute;left:8px;top:8px;background:var(--paper);border:1.5px solid var(--bd);border-radius:6px;padding:2px 9px;font-size:14px;pointer-events:none}
+.vb{margin:10px 0 6px}.vb button{padding:5px 10px}
+.q{font-weight:700;margin:2px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{padding:6px;position:relative}.opt span{position:absolute;left:8px;top:4px;color:var(--mu);font-weight:700}
+.opt.ok{border-color:var(--ok);border-width:3px}.opt.bad{border-color:var(--bad);border-width:3px}
+svg{width:100%;height:auto;display:block;max-height:200px}
+.o{fill:none;stroke:var(--tx);stroke-width:5;stroke-linejoin:round}.i{fill:var(--sh);stroke:none}
+.gr{fill:none;stroke:var(--bd);stroke-width:1;stroke-dasharray:4 4}.gd{stroke:var(--tx);stroke-width:2}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+figure{margin:0;text-align:center}figcaption{font-size:14px;color:var(--mu)}
+.bgrid{display:grid;gap:5px;max-width:300px;margin:6px 0}
+.bgrid button{aspect-ratio:1;padding:0;font-weight:700}
+.ed{display:grid;gap:6px;margin:8px 0}.ed select{width:100%}
+#fb,#fb2{margin:10px 0;min-height:1.4em;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.go{background:var(--ac);color:var(--paper);border-color:var(--ac)}
+</style>
+</head>
+<body>
+<main>
+<h1>Денелер қалашы: күрделі кеңістіктік ойлау</h1>
+<p class="sub">Торға қойылған көп деңгейлі құрылыс, 20 түрлі дене. Көрініс — дененің көлеңкесі.</p>
+<div class="bar">
+  <div class="tabs"><button id="t0" class="on">Қай көрініс?</button><button id="t1">Құрастыр</button></div>
+  <div class="lvs" id="lvs"><button data-l="1" class="on">1: 2×2</button><button data-l="2">2: 3×3</button><button data-l="3">3: 3×3, 20 дене</button><button data-l="4">4: 4×4, 20 дене</button></div>
+</div>
+<div class="wrap">
+  <section class="card">
+    <div id="stage"><div class="badge" id="bd">Көру бағыты: 3D</div></div>
+    <div class="vb" id="vb"></div>
+    <small>Жасыл жиек — алдыңғы жақ, қызғылт сары жиек — оң жақ. Суретті сүйреп айналдырыңыз.</small>
+  </section>
+  <section class="card"><div id="quiz"></div><div id="build" hidden></div></section>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),rnd=n=>Math.floor(Math.random()*n),pick=a=>a[rnd(a.length)],PI=Math.PI;
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+/* ---------- 20 дене: [аты, жазық үсті бар ма, геометрия] ---------- */
+const T=THREE,D={
+ cube:['Текше',1,()=>new T.BoxGeometry(1,1,1)],
+ ball:['Шар',0,()=>new T.SphereGeometry(.5,24,16)],
+ cyl:['Цилиндр',1,()=>new T.CylinderGeometry(.5,.5,1,32)],
+ cone:['Конус',0,()=>new T.CylinderGeometry(0,.5,1,32)],
+ pyr:['Төртбұрышты пирамида',0,()=>new T.CylinderGeometry(0,Math.SQRT1_2,1,4).rotateY(PI/4)],
+ tpy:['Үшбұрышты пирамида',0,()=>new T.CylinderGeometry(0,.55,1,3)],
+ pr3:['Үшбұрышты призма',0,()=>{const s=new T.Shape();s.moveTo(-.5,0);s.lineTo(.5,0);s.lineTo(0,.8);s.closePath();return new T.ExtrudeGeometry(s,{depth:1,bevelEnabled:false}).translate(0,0,-.5)}],
+ pr4:['Төртбұрышты призма',1,()=>new T.BoxGeometry(.6,1,.6)],
+ pr5:['Бесбұрышты призма',1,()=>new T.CylinderGeometry(.5,.5,1,5)],
+ pr6:['Алтыбұрышты призма',1,()=>new T.CylinderGeometry(.5,.5,1,6)],
+ box:['Тікбұрышты параллелепипед',1,()=>new T.BoxGeometry(1,.5,.6)],
+ tet:['Тетраэдр',0,()=>new T.TetrahedronGeometry(.6)],
+ oct:['Октаэдр',0,()=>new T.OctahedronGeometry(.5)],
+ dod:['Додекаэдр',0,()=>new T.DodecahedronGeometry(.5)],
+ ico:['Икосаэдр',0,()=>new T.IcosahedronGeometry(.5)],
+ tor:['Тор (тороид)',0,()=>new T.TorusGeometry(.35,.15,10,28).rotateX(PI/2)],
+ fco:['Қиық конус',1,()=>new T.CylinderGeometry(.25,.5,1,32)],
+ fpy:['Қиық пирамида',1,()=>new T.CylinderGeometry(.354,.707,1,4).rotateY(PI/4)],
+ ell:['Эллипсоид',0,()=>new T.SphereGeometry(.5,24,16).scale(1,.8,.7)],
+ dome:['Жарты шар',0,()=>new T.SphereGeometry(.5,24,12,0,2*PI,0,PI/2)]
+};
+const IDS=Object.keys(D),FL={};IDS.forEach(k=>FL[k]=D[k][1]);
+/* жалпы дөңес қабық (көлеңке) */
+function hull(p){
+  p=[...new Map(p.map(q=>[q[0].toFixed(3)+','+q[1].toFixed(3),q])).values()].sort((a,b)=>a[0]-b[0]||a[1]-b[1]);
+  const cr=(o,a,b)=>(a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]),ch=q=>{const h=[];for(const x of q){while(h.length>1&&cr(h[h.length-2],h[h.length-1],x)<=0)h.pop();h.push(x)}h.pop();return h};
+  return ch(p).concat(ch([...p].reverse()));
+}
+const SHP={},GEO={},EDG={};
+IDS.forEach(k=>{const g=D[k][2]();g.computeBoundingBox();g.translate(0,-g.boundingBox.min.y,0);g.computeBoundingBox();
+  const a=g.attributes.position,V=[];for(let i=0;i<a.count;i++)V.push([a.getX(i),a.getY(i),a.getZ(i)]);
+  GEO[k]=g;EDG[k]=new T.EdgesGeometry(g,25);
+  SHP[k]={h:g.boundingBox.max.y,f:hull(V.map(v=>[v[0],v[1]])),s:hull(V.map(v=>[-v[2],v[1]])),t:hull(V.map(v=>[v[0],v[2]])),hole:k=='tor'?.2:0}});
+const pin=(id,v,x,y)=>{const q=SHP[id][v];if(v=='t'&&SHP[id].hole&&Math.hypot(x,y)<SHP[id].hole)return 0;
+  return q.every((a,i)=>{const b=q[(i+1)%q.length];return (b[0]-a[0])*(y-a[1])-(b[1]-a[1])*(x-a[0])>=-1e-9})};
+const pcs=A=>{const o=[];A.forEach((row,r)=>row.forEach((st,c)=>{let y=0;st.forEach(id=>{o.push({id,c,r,y});y+=SHP[id].h})}));return o};
+/* ---------- көлеңке растры (салыстыру үшін) ---------- */
+const K=10,HM=3;
+function mask(A,v){
+  const n=A.length,W=n*K,H=v=='t'?W:HM*K,m=new Uint8Array(W*H),L=pcs(A);
+  for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++){
+    const x=(X+.5)/K,y=v=='t'?(Y+.5)/K:(H-Y-.5)/K,cx=Math.floor(x);
+    for(const p of L){if((v=='s'?n-1-p.r:p.c)!=cx)continue;let a=x-cx-.5,b;
+      if(v=='t'){if(p.r!=Math.floor(y))continue;b=y-p.r-.5}else b=y-p.y;
+      if(pin(p.id,v,a,b)){m[Y*W+X]=1;break}}}
+  return m;
+}
+const BASE={f:'f',s:'s',t:'t',b:'f',l:'s'};
+function mk(A,v){const b=BASE[v],m=mask(A,b);if(b==v)return m;const W=A.length*K,o=new Uint8Array(m.length);
+  for(let i=0;i<m.length;i++){const X=i%W;o[i]=m[i-X+W-1-X]}return o}
+const sig=(A,v)=>mk(A,v).join('');
+/* ---------- көлеңке суреті (SVG) ---------- */
+function svgOf(A,v){
+  const b=BASE[v],n=A.length,U=40,W=n*U,H=b=='t'?W:HM*U;let d='',g='';
+  const tr=(p,a,c)=>{const hx=b=='s'?n-1-p.r:p.c;return b=='t'?[(hx+.5+a)*U,(p.r+.5+c)*U]:[(hx+.5+a)*U,H-(p.y+c)*U]};
+  const path=pts=>'M'+pts.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join('L')+'Z';
+  pcs(A).forEach(p=>{const s=SHP[p.id];d+=path(s[b].map(q=>tr(p,q[0],q[1])));
+    if(b=='t'&&s.hole)d+=path(Array.from({length:24},(_,i)=>tr(p,s.hole*Math.cos(-i*PI/12),s.hole*Math.sin(-i*PI/12))))});
+  for(let i=0;i<=n;i++)g+=`M${i*U} 0V${H}`;if(b=='t')for(let i=0;i<=n;i++)g+=`M0 ${i*U}H${W}`;
+  const m=BASE[v]!=v?` transform="translate(${W} 0) scale(-1 1)"`:'';
+  return `<svg viewBox="-4 -4 ${W+8} ${H+8}"><path class="gr" d="${g}"/><g${m}><path class="o" d="${d}"/><path class="i" d="${d}"/></g>${b=='t'?'':`<path class="gr gd" d="M0 ${H}H${W}"/>`}</svg>`;
+}
+const NM={f:'алдынан',s:'оң жағынан',b:'артынан',l:'сол жағынан',t:'үстінен'};
+/* ---------- 3D ---------- */
+const stage=$('#stage'),R=new T.WebGLRenderer({antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio||1,2));stage.prepend(R.domElement);
+const scene=new T.Scene(),cam=new T.OrthographicCamera(-1,1,1,-1,.1,100),G=new T.Group();
+scene.add(G,cam,new T.AmbientLight(0xffffff,.72));
+const dl=new T.DirectionalLight(0xffffff,.55);dl.position.set(2,5,6);cam.add(dl);
+const lm=new T.LineBasicMaterial({color:0x1f2937}),COL=[0x8b5cf6,0x22b8cf,0xfab005].map(c=>new T.MeshLambertMaterial({color:c,side:T.DoubleSide}));
+let S=4,TY=1.4;
+function fit(){const w=stage.clientWidth||400,h=Math.round(w*.75),a=w/h;R.setSize(w,h);cam.left=-S*a;cam.right=S*a;cam.top=S;cam.bottom=-S;cam.updateProjectionMatrix()}
+function show(A){
+  G.clear();const n=A.length,o=(n-1)/2;S=n*.65+2;TY=1.5;
+  G.add(new T.GridHelper(n,n,0x9aa3b2,0x9aa3b2));
+  const gm=new T.Mesh(new T.BoxGeometry(n,.06,.1),new T.MeshBasicMaterial({color:0x22c55e}));gm.position.set(0,.03,n/2+.1);
+  const om=new T.Mesh(new T.BoxGeometry(.1,.06,n),new T.MeshBasicMaterial({color:0xf97316}));om.position.set(n/2+.1,.03,0);G.add(gm,om);
+  pcs(A).forEach((p,i)=>{const m=new T.Mesh(GEO[p.id],COL[(p.y>2?2:p.y>.9?1:0)]);m.position.set(p.c-o,p.y,p.r-o);m.add(new T.LineSegments(EDG[p.id],lm));G.add(m)});
+  fit();
+}
+const VW={front:{t:0,p:0},right:{t:PI/2,p:0},back:{t:PI,p:0},left:{t:-PI/2,p:0},top:{t:0,p:1.55},iso:{t:PI/4,p:.55}};
+const LBL={front:'Алдынан',right:'Оң жағынан',back:'Артынан',left:'Сол жағынан',top:'Үстінен',iso:'3D'},VK={f:'front',s:'right',b:'back',l:'left',t:'top'};
+const cur={t:PI/4,p:.55},goal={...cur};let drag=null;
+function setView(k,snap){const v=VW[k],f=2*PI;goal.t=v.t+Math.round((cur.t-v.t)/f)*f;goal.p=v.p;if(snap){cur.t=goal.t;cur.p=goal.p}$('#bd').textContent='Көру бағыты: '+LBL[k]}
+$('#vb').innerHTML=Object.keys(VW).map(k=>`<button data-v="${k}">${LBL[k]}</button>`).join('');
+$('#vb').onclick=e=>{const k=e.target.dataset.v;if(k)setView(k)};
+stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;cur.t-=(e.clientX-drag.x)*.01;cur.p=Math.max(-.05,Math.min(1.55,cur.p+(e.clientY-drag.y)*.01));drag.x=e.clientX;drag.y=e.clientY;goal.t=cur.t;goal.p=cur.p;$('#bd').textContent='Көру бағыты: еркін'});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>drag=null));
+(function loop(){requestAnimationFrame(loop);if(!drag){cur.t+=(goal.t-cur.t)*.14;cur.p+=(goal.p-cur.p)*.14}
+  const d=20,c=Math.cos(cur.p);cam.position.set(Math.sin(cur.t)*c*d,TY+Math.sin(cur.p)*d,Math.cos(cur.t)*c*d);cam.lookAt(0,TY,0);R.render(scene,cam)})();
+new ResizeObserver(fit).observe(stage);
+/* ---------- құрылыс генераторы ---------- */
+const P1=['cube','cyl','cone','pyr','ball','pr3','dome','box'],P2=[...P1,'pr4','tpy','tor','fco'];
+const CF=[0,{n:2,ms:2,fill:.85,pool:P1},{n:3,ms:2,fill:.7,pool:P2},{n:3,ms:3,fill:.75,pool:IDS},{n:4,ms:3,fill:.7,pool:IDS}];
+function gen(c){let A;do{A=Array.from({length:c.n},()=>Array.from({length:c.n},()=>{
+  if(Math.random()>c.fill)return[];const k=1+rnd(c.ms),s=[];
+  for(let i=0;i<k;i++){const id=pick(i==k-1?c.pool:c.pool.filter(x=>FL[x]));s.push(id);if(!FL[id])break}return s}))}while(pcs(A).length<c.n+1);return A}
+function mutate(A,c){const B=A.map(r=>r.map(s=>[...s])),i=rnd(c.n),j=rnd(c.n),s=B[i][j],t=rnd(3);
+  if(t==0&&s.length)s.pop();else if(t==1&&s.length)s[s.length-1]=pick(c.pool);else if(s.length<c.ms&&(!s.length||FL[s[s.length-1]]))s.push(pick(c.pool));return B}
+/* ---------- жалпы ---------- */
+let lv=1,tb=0,score=0,streak=0,Q=null,B=null;
+function tab(i){tb=i;$('#t0').classList.toggle('on',!i);$('#t1').classList.toggle('on',!!i);$('#quiz').hidden=!!i;$('#build').hidden=!i;i?newB():newQ()}
+$('#t0').onclick=()=>tab(0);$('#t1').onclick=()=>tab(1);
+$('#lvs').onclick=e=>{const l=e.target.dataset.l;if(!l)return;lv=+l;[...$('#lvs').children].forEach(b=>b.classList.toggle('on',b.dataset.l==l));tab(tb)};
+/* ---------- 1-режим: қай көрініс? ---------- */
+function newQ(){
+  const c=CF[lv],A=gen(c),v=pick(['f','s','b','l','t']),s0=sig(A,v),seen=new Set([s0]),d=[];
+  const add=(B2,w)=>{const s=sig(B2,w);if(!seen.has(s)&&d.length<3){seen.add(s);d.push([B2,w])}};
+  shuf(['f','s','b','l','t'].filter(x=>x!=v)).slice(0,1).forEach(w=>add(A,w));
+  for(let g=0;d.length<3&&g<60;g++)add(mutate(A,c),v);
+  const o=shuf([[A,v],...d]);Q={A,v,i:o.findIndex(x=>x[0]==A&&x[1]==v),done:0,o};
+  show(A);setView('iso',1);
+  $('#quiz').innerHTML=`<div class="bar"><span class="stat">Ұпай: <b id="sc">${score}</b> · Қатарынан: <b id="st">${streak}</b></span></div>
+  <div class="q">Құрылысты <u>${NM[v]}</u> қарағанда қандай көлеңке шығады? Бірнеше дене бірін-бірі жасырады.</div>
+  <div class="opts">${o.map((x,i)=>`<button class="opt" data-i="${i}"><span>${'АӘБВ'[i]}</span>${svgOf(x[0],x[1])}</button>`).join('')}</div>
+  <div id="fb"></div><button id="nx" class="go" hidden>Келесі есеп</button>`;
+}
+$('#quiz').onclick=e=>{
+  if(e.target.closest('#nx'))return newQ();
+  const b=e.target.closest('.opt');if(!b||Q.done)return;Q.done=1;
+  const ok=+b.dataset.i==Q.i,bs=[...document.querySelectorAll('.opt')];
+  bs[Q.i].classList.add('ok');if(!ok)b.classList.add('bad');
+  if(ok){streak++;score+=10*lv+Math.min(streak,5)*2}else streak=0;
+  $('#sc').textContent=score;$('#st').textContent=streak;
+  const fb=$('#fb');fb.style.color=ok?'var(--ok)':'var(--bad)';
+  fb.textContent=(ok?'Дұрыс! ':'Қате. Дұрыс жауап жасыл жақтауда. ')+'Сурет сол бағытқа бұрылды, тексеріңіз.';
+  setView(VK[Q.v]);$('#nx').hidden=false;
+};
+/* ---------- 2-режим: көлеңкелерден құрастыр ---------- */
+const opts='<option value="">жоқ</option>'+IDS.map(k=>`<option value="${k}">${D[k][0]}</option>`).join('');
+function newB(){
+  const c=CF[lv],n=c.n;B={A:gen(c),U:Array.from({length:n},()=>Array.from({length:n},()=>[])),sel:[0,0],n};
+  show(B.U);setView('iso',1);
+  const fg=(v,t)=>`<figure>${svgOf(B.A,v)}<figcaption>${t}</figcaption></figure>`;
+  $('#build').innerHTML=`<div class="q">Үш көлеңкеге сай құрылыс жасаңыз. Ұяшықты таңдап, оған төменнен жоғары қарай дене қойыңыз.</div>
+  <div class="three">${fg('f','Алдынан')}${fg('s','Оң жағынан')}${fg('t','Үстінен')}</div>
+  <small>Үстінен қараған тор: жоғарғы қатар — артқы жақ, төменгі қатар — алдыңғы жақ.</small>
+  <div class="bgrid" id="bg" style="grid-template-columns:repeat(${n},1fr)">${B.U.map((r,i)=>r.map((_,j)=>`<button data-r="${i}" data-c="${j}">·</button>`).join('')).join('')}</div>
+  <div class="ed" id="ed">${[1,2,3].map(k=>`<select data-k="${k-1}" aria-label="${k}-қабат">${opts}</select>`).join('')}</div>
+  <div id="fb2"></div><div class="row"><button id="chk" class="go">Тексер</button><button id="nw">Жаңа есеп</button></div>`;
+  pickCell(0,0);
+}
+function pickCell(r,c){B.sel=[r,c];document.querySelectorAll('#bg button').forEach(b=>b.classList.toggle('on',+b.dataset.r==r&&+b.dataset.c==c));
+  const s=B.U[r][c];document.querySelectorAll('#ed select').forEach((e,i)=>e.value=s[i]||'')}
+$('#build').onchange=e=>{
+  if(!e.target.matches('#ed select'))return;
+  const st=[];for(const e2 of document.querySelectorAll('#ed select')){if(!e2.value)break;st.push(e2.value);if(!FL[e2.value])break}
+  const [r,c]=B.sel;B.U[r][c]=st;pickCell(r,c);
+  document.querySelector(`#bg [data-r="${r}"][data-c="${c}"]`).textContent=st.length||'·';
+  show(B.U);$('#fb2').textContent='';
+};
+$('#build').onclick=e=>{
+  const b=e.target.closest('button');if(!b||!B)return;
+  if(b.id=='nw')return newB();
+  if(b.dataset.r!==undefined)return pickCell(+b.dataset.r,+b.dataset.c);
+  if(b.id=='chk'){
+    const r={};['f','s','t'].forEach(v=>{const a=mk(B.U,v),t=mk(B.A,v);let q=0;a.forEach((x,i)=>q+=x==t[i]);r[v]=Math.round(100*q/a.length)});
+    const fb=$('#fb2'),w=['f','s','t'].sort((x,y)=>r[x]-r[y])[0];
+    if(r.f==100&&r.s==100&&r.t==100){fb.style.color='var(--ok)';fb.textContent='Дұрыс! Үш көлеңке де сәйкес. Көрсетілген құрылыс сіздікінен өзгеше болса да болады.';setView('iso')}
+    else{fb.style.color='var(--bad)';fb.textContent=`Сәйкестік: алдынан ${r.f}%, оңнан ${r.s}%, үстінен ${r.t}%. Ең әлсізі — ${NM[w]}.`;setView(VK[w])}
+  }
+};
+newQ();
+</script>
+</body>
+</html>

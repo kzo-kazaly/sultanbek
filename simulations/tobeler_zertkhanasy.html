@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Төбелер зертханасы</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@700&display=swap">
+<style>
+:root{--bg:#f4f6fb;--paper:#fff;--grid:#d6dff2;--tx:#1b2440;--mu:#5d6b8c;--ac:#2b4acb;--ok:#15803d;--bad:#c62828;--bd:#c9d3ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}}
+:root[data-theme="dark"]{--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg) linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px;color:var(--tx);font:16px/1.45 "PT Sans",system-ui,sans-serif;min-height:100vh}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 40px}
+h1{font:700 clamp(22px,4.5vw,32px)/1.15 "PT Serif",Georgia,serif;margin:4px 0 4px}
+.sub{color:var(--mu);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs,.lvs,.vb,.row{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;color:var(--tx);background:var(--paper);border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ac)}button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.stat{color:var(--mu)}.stat b{color:var(--tx)}
+.wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}
+.card{min-width:0;background:var(--paper);border:1.5px solid var(--bd);border-radius:12px;padding:12px}
+#stage{position:relative;overflow:hidden;border-radius:8px;border:1.5px solid var(--bd);touch-action:none;cursor:grab;background:var(--bg)}
+#stage canvas{display:block;max-width:100%}
+.badge{position:absolute;left:8px;top:8px;background:var(--paper);border:1.5px solid var(--bd);border-radius:6px;padding:2px 9px;font-size:14px;pointer-events:none}
+.vb{margin:10px 0 6px}.vb button{padding:5px 10px}
+.fold{display:flex;align-items:center;gap:8px;margin:8px 0}.fold input{flex:1;min-width:100px}
+small,.hint{color:var(--mu);font-size:13.5px}
+.q{font-weight:700;margin:2px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{padding:12px 6px;text-align:center;position:relative;font:700 30px "PT Serif",serif}
+.opt span{position:absolute;left:8px;top:4px;color:var(--mu);font:700 14px "PT Sans",sans-serif}
+.opt.ok{border-color:var(--ok);border-width:3px}.opt.bad{border-color:var(--bad);border-width:3px}
+#fb{margin:10px 0;min-height:1.4em;font-weight:700}
+#ex{margin:6px 0;font-size:15px}
+.rd{color:#e11d2e;font-weight:700}.go{background:var(--ac);color:#fff;border-color:var(--ac)}
+.hl{color:#e8730c;font-weight:700}
+.sel{display:flex;flex-wrap:wrap;gap:8px;align-items:center}select{font:inherit;color:var(--tx);background:var(--paper);border:1.5px solid var(--bd);border-radius:8px;padding:7px 10px;max-width:100%}#info{color:var(--mu);font-size:14px;margin:0 0 10px}.lab .row{margin:6px 0 12px}.lab .row button{min-width:40px;font:700 20px "PT Serif",serif}
+</style>
+</head>
+<body>
+<main>
+<h1>Төбелер зертханасы</h1>
+<p class="sub">Жазбаның бір бұрышында қызыл нүкте тұр, басқа бұрыштарда сандар бар. Дене жиналғанда қызыл нүкте қандай сандармен түйісетінін табыңыз.</p>
+<div class="bar">
+  <div class="tabs"><button id="t0" class="on">Есеп</button><button id="t1">Зертхана</button></div>
+  <div class="lvs" id="lvs"><button data-l="1" class="on">1-деңгей: бір сан</button><button data-l="2">2-деңгей: сандар жиыны</button><button data-l="3">3-деңгей: күрделі</button></div>
+</div>
+<div class="sel" style="margin-bottom:8px"><select id="fg" aria-label="Фигура"></select><button id="rf">Кездейсоқ фигура</button></div>
+<p id="info"></p>
+<div class="wrap">
+  <section class="card">
+    <div id="stage"><div class="badge" id="bd">Көру бағыты: жазба</div></div>
+    <div class="fold" id="foldbar"><button id="bFlat">Жазба</button><input type="range" id="sl" min="0" max="100" value="0" aria-label="Бүктеу"><button id="bCube">Дене</button></div>
+    <div class="vb" id="vb"></div>
+    <small>Қызыл нүкте — іздеп отырған төбе. Суретті сүйреп айналдырыңыз.</small>
+  </section>
+  <section class="card">
+    <div id="quiz"></div>
+    <div id="lab" class="lab" hidden></div>
+  </section>
+</div>
+</main>
+<script>
+const $=s=>document.querySelector(s),rnd=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const I3=[1,0,0,0,1,0,0,0,1];
+const mm=(A,B)=>{const C=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)C.push(A[i*3]*B[j]+A[i*3+1]*B[3+j]+A[i*3+2]*B[6+j]);return C};
+const mv=(A,v)=>[A[0]*v[0]+A[1]*v[1]+A[2]*v[2],A[3]*v[0]+A[4]*v[1]+A[5]*v[2],A[6]*v[0]+A[7]*v[1]+A[8]*v[2]];
+const tp=A=>[A[0],A[3],A[6],A[1],A[4],A[7],A[2],A[5],A[8]];
+const Rx=a=>{const c=Math.cos(a),s=Math.sin(a);return[1,0,0,0,c,-s,0,s,c]};
+const Ry=a=>{const c=Math.cos(a),s=Math.sin(a);return[c,0,s,0,1,0,-s,0,c]};
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const neg=a=>[-a[0]+0,-a[1]+0,-a[2]+0],sc3=(a,k)=>[a[0]*k,a[1]*k,a[2]*k];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],len=a=>Math.hypot(a[0],a[1],a[2]),nrm=a=>sc3(a,1/len(a));
+const cols=(a,b,c)=>[a[0],b[0],c[0],a[1],b[1],c[1],a[2],b[2],c[2]];
+const rod=(k,t)=>{const c=Math.cos(t),s=Math.sin(t),C=1-c;return[c+C*k[0]*k[0],C*k[0]*k[1]-s*k[2],C*k[0]*k[2]+s*k[1],C*k[0]*k[1]+s*k[2],c+C*k[1]*k[1],C*k[1]*k[2]-s*k[0],C*k[0]*k[2]-s*k[1],C*k[1]*k[2]+s*k[0],c+C*k[2]*k[2]]};
+function quat(m){let w,x,y,z,s;const t=m[0]+m[4]+m[8];
+  if(t>0){s=Math.sqrt(t+1)*2;w=s/4;x=(m[7]-m[5])/s;y=(m[2]-m[6])/s;z=(m[3]-m[1])/s}
+  else if(m[0]>m[4]&&m[0]>m[8]){s=Math.sqrt(1+m[0]-m[4]-m[8])*2;w=(m[7]-m[5])/s;x=s/4;y=(m[1]+m[3])/s;z=(m[2]+m[6])/s}
+  else if(m[4]>m[8]){s=Math.sqrt(1+m[4]-m[0]-m[8])*2;w=(m[2]-m[6])/s;x=(m[1]+m[3])/s;y=s/4;z=(m[5]+m[7])/s}
+  else{s=Math.sqrt(1+m[8]-m[0]-m[4])*2;w=(m[3]-m[1])/s;x=(m[2]+m[6])/s;y=(m[5]+m[7])/s;z=s/4}
+  return[w,x,y,z]}
+function fromQ(w,x,y,z){return[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w),2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w),2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]}
+function part(M,t){let[w,x,y,z]=quat(M);if(w<0){w=-w;x=-x;y=-y;z=-z}
+  const s=Math.sqrt(Math.max(0,1-w*w));if(s<1e-6)return I3;const a=2*Math.acos(Math.min(1,w))*t,k=Math.sin(a/2)/s;return fromQ(Math.cos(a/2),x*k,y*k,z*k)}
+
+/* ---------- Денелер тізімі ---------- */
+const PHI=(1+Math.sqrt(5))/2,rr=n=>.5/Math.sin(Math.PI/n);
+const ring=(n,R,z,o=0)=>Array.from({length:n},(_,k)=>[R*Math.cos(2*Math.PI*k/n+o),R*Math.sin(2*Math.PI*k/n+o),z]);
+const box=(a,b,c)=>{const o=[];for(const x of[-1,1])for(const y of[-1,1])for(const z of[-1,1])o.push([x*a/2,y*b/2,z*c/2]);return o};
+const SG=[1,-1];
+const prism=n=>()=>[...ring(n,rr(n),-.6),...ring(n,rr(n),.6)];
+const pyr=(n,h)=>()=>[...ring(n,rr(n),0),[0,0,h]];
+const bipyr=(n,h)=>()=>[...ring(n,rr(n),0),[0,0,h],[0,0,-h]];
+const ico=()=>{const o=[];for(const a of SG)for(const b of SG)o.push([0,a,b*PHI],[a,b*PHI,0],[b*PHI,0,a]);return o};
+const dod=()=>{const o=box(2,2,2);for(const a of SG)for(const b of SG)o.push([0,a/PHI,b*PHI],[a/PHI,b*PHI,0],[b*PHI,0,a/PHI]);return o};
+const cubo=()=>{const o=[];for(const a of SG)for(const b of SG)o.push([a,b,0],[a,0,b],[0,a,b]);return o};
+const rhomb=()=>{const o=box(2,2,2);for(const a of SG)o.push([2*a,0,0],[0,2*a,0],[0,0,2*a]);return o};
+const SOL=[
+{id:'cube',n:'Куб (текше)',g:'Көпжақтар',V:()=>box(1,1,1),orient:1},
+{id:'cuboid',n:'Тікбұрышты параллелепипед',g:'Көпжақтар',V:()=>box(1.6,1,.7),orient:1},
+{id:'tet',n:'Тетраэдр',g:'Көпжақтар',V:()=>[[1,1,1],[1,-1,-1],[-1,1,-1],[-1,-1,1]]},
+{id:'oct',n:'Октаэдр',g:'Көпжақтар',V:()=>[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]},
+{id:'dod',n:'Додекаэдр',g:'Көпжақтар',V:dod},
+{id:'ico',n:'Икосаэдр',g:'Көпжақтар',V:ico},
+{id:'p3',n:'Үшбұрышты призма',g:'Призмалар',V:prism(3)},
+{id:'p4',n:'Төртбұрышты призма',g:'Призмалар',V:()=>[...ring(4,rr(4),-.9,Math.PI/4),...ring(4,rr(4),.9,Math.PI/4)],orient:1},
+{id:'p5',n:'Бесбұрышты призма',g:'Призмалар',V:prism(5)},
+{id:'p6',n:'Алтыбұрышты призма',g:'Призмалар',V:prism(6)},
+{id:'p8',n:'Сегізбұрышты призма',g:'Призмалар',V:prism(8)},
+{id:'y3',n:'Үшбұрышты пирамида',g:'Пирамидалар',V:pyr(3,1.1)},
+{id:'y4',n:'Төртбұрышты пирамида',g:'Пирамидалар',V:pyr(4,1)},
+{id:'y5',n:'Бесбұрышты пирамида',g:'Пирамидалар',V:pyr(5,1)},
+{id:'y6',n:'Алтыбұрышты пирамида',g:'Пирамидалар',V:pyr(6,1.2)},
+{id:'fr',n:'Қиық пирамида',g:'Пирамидалар',V:()=>[...ring(4,rr(4),-.5,Math.PI/4),...ring(4,rr(4)*.5,.5,Math.PI/4)]},
+{id:'b3',n:'Үшбұрышты бипирамида',g:'Басқа көпжақтар',V:bipyr(3,.9)},
+{id:'b5',n:'Бесбұрышты бипирамида',g:'Басқа көпжақтар',V:bipyr(5,.8)},
+{id:'ap',n:'Төртбұрышты антипризма',g:'Басқа көпжақтар',V:()=>[...ring(4,rr(4),-.45),...ring(4,rr(4),.45,Math.PI/4)]},
+{id:'cuo',n:'Кубооктаэдр',g:'Басқа көпжақтар',V:cubo},
+{id:'rd',n:'Ромбтық додекаэдр',g:'Басқа көпжақтар',V:rhomb},
+{id:'cyl',n:'Цилиндр',g:'Айналу денелері (жазбасы бар)',k:'r',V:()=>[...ring(16,.8,-.8),...ring(16,.8,.8)],real:{f:3,e:2,v:0},dev:1},
+{id:'con',n:'Конус',g:'Айналу денелері (жазбасы бар)',k:'r',V:()=>[...ring(16,.9,-.6),[0,0,1]],real:{f:2,e:1,v:1},dev:1},
+{id:'fcon',n:'Қиық конус',g:'Айналу денелері (жазбасы бар)',k:'r',V:()=>[...ring(16,1,-.7),...ring(16,.5,.7)],real:{f:3,e:2,v:0},dev:1},
+{id:'sph',n:'Шар',g:'Жазбасы жоқ денелер',k:'s',real:{f:1,e:0,v:0},st:'ell',par:[2.2,2.2,2.2]},
+{id:'ell',n:'Эллипсоид',g:'Жазбасы жоқ денелер',k:'s',real:{f:1,e:0,v:0},st:'ell',par:[2.5,1.4,1.9]},
+{id:'hem',n:'Жарты шар',g:'Жазбасы жоқ денелер',k:'s',real:{f:2,e:1,v:0},st:'hem',par:[2.2,2.2,2.2]},
+{id:'tor',n:'Тор (тороид)',g:'Жазбасы жоқ денелер',k:'s',real:{f:1,e:0,v:0},st:'tor'}
+];
+
+const POLY=SOL.filter(s=>!s.k);
+/* ---------- Дөңес қабықша (hull) ---------- */
+function hullOf(s){
+  if(s.H)return s.H;const P=s.V(),n=P.length,mp=new Map();
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)for(let k=j+1;k<n;k++){
+    const c0=cross(sub(P[j],P[i]),sub(P[k],P[i]));if(len(c0)<1e-9)continue;
+    const nn=nrm(c0),d=dot(nn,P[i]);let pos=0,ng=0;const on=[];
+    for(let m=0;m<n;m++){const q=dot(nn,P[m])-d;if(q>1e-7)pos++;else if(q<-1e-7)ng++;else on.push(m)}
+    if((pos&&ng)||(!pos&&!ng))continue;const key=on.join();if(mp.has(key))continue;
+    mp.set(key,{on,n:pos?neg(nn):nn})}
+  const F=[...mp.values()];
+  F.forEach(f=>{const c=sc3(f.on.reduce((a,v)=>add(a,P[v]),[0,0,0]),1/f.on.length),u=nrm(sub(P[f.on[0]],c)),w=cross(f.n,u);
+    const ang=v=>{const d=sub(P[v],c);return Math.atan2(dot(d,w),dot(d,u))};f.on.sort((a,b)=>ang(a)-ang(b))});
+  const adj=F.map(()=>[]);
+  for(let i=0;i<F.length;i++)for(let j=i+1;j<F.length;j++){const sh=F[i].on.filter(v=>F[j].on.includes(v));
+    if(sh.length==2){adj[i].push({j,a:sh[0],b:sh[1]});adj[j].push({j:i,a:sh[0],b:sh[1]})}}
+  return s.H={P,F,adj,V:n,E:n+F.length-2};
+}
+function randTree(H){
+  const nF=H.F.length,root=rnd(nF),ord=[{i:root,par:-1}],inT=new Set([root]),fr=[];
+  const push=i=>H.adj[i].forEach(e=>{if(!inT.has(e.j))fr.push({par:i,...e})});push(root);
+  while(ord.length<nF){const e=fr.splice(Math.random()<.7?fr.length-1:rnd(fr.length),1)[0];if(inT.has(e.j))continue;inT.add(e.j);ord.push({i:e.j,par:e.par,a:e.a,b:e.b});push(e.j)}
+  return ord}
+function chain(H){
+  const lat=H.F.map((_,i)=>i).filter(i=>H.F[i].on.length<=4),seq=[lat[0]],seen=new Set(seq);
+  while(seq.length<lat.length){const nx=H.adj[seq[seq.length-1]].find(e=>lat.includes(e.j)&&!seen.has(e.j));if(!nx)break;seen.add(nx.j);seq.push(nx.j)}
+  const ord=[{i:seq[0],par:-1}],link=(p,c)=>{const e=H.adj[p].find(x=>x.j==c);return{i:c,par:p,a:e.a,b:e.b}};
+  for(let k=1;k<seq.length;k++)ord.push(link(seq[k-1],seq[k]));
+  const m=seq[seq.length>>1];H.F.forEach((f,i)=>{if(f.on.length>4)ord.push(link(m,i))});return ord}
+/* жазбаны жазықтыққа жаю */
+function unfold(H,ord){
+  const{P,F}=H,fl=[],info=[];
+  ord.forEach(o=>{const f=F[o.i];fl[o.i]={};
+    if(o.par<0){const p0=P[f.on[0]],u=nrm(sub(P[f.on[1]],p0)),w=cross(f.n,u);f.on.forEach(v=>{const d=sub(P[v],p0);fl[o.i][v]=[dot(d,u),dot(d,w)]});return}
+    const pf=fl[o.par],pa=pf[o.a],pb=pf[o.b],e3=nrm(sub(P[o.b],P[o.a])),e2=nrm([pb[0]-pa[0],pb[1]-pa[1],0]).slice(0,2);
+    let m=[-e2[1],e2[0]];const pc=Object.values(pf),cx=pc.reduce((s,p)=>s+p[0],0)/pc.length,cy=pc.reduce((s,p)=>s+p[1],0)/pc.length;
+    if(m[0]*(cx-pa[0])+m[1]*(cy-pa[1])>0)m=[-m[0],-m[1]];
+    f.on.forEach(v=>{const d=sub(P[v],P[o.a]),al=dot(d,e3),pr=len(sub(d,sc3(e3,al)));fl[o.i][v]=[pa[0]+al*e2[0]+pr*m[0],pa[1]+al*e2[1]+pr*m[1]]});
+    const s=e2[0]*m[1]-e2[1]*m[0];
+    info[o.i]={pa:[pa[0],pa[1]],k:s<0?[e2[0],e2[1],0]:[-e2[0],-e2[1],0],alpha:Math.acos(Math.max(-1,Math.min(1,dot(F[o.par].n,f.n))))}});
+  const polys=F.map((f,i)=>f.on.map(v=>fl[i][v])),all=polys.flat(),cx=all.reduce((s,p)=>s+p[0],0)/all.length,cy=all.reduce((s,p)=>s+p[1],0)/all.length;
+  const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]),k=Math.min(5.5/(Math.max(...xs)-Math.min(...xs)),4.3/(Math.max(...ys)-Math.min(...ys)),2.6/Math.max(...all.map(p=>Math.hypot(p[0]-cx,p[1]-cy)))*1.6);
+  polys.forEach(pl=>pl.forEach(p=>{p[0]*=k;p[1]*=k}));
+  info.forEach(f=>{if(f){f.pa=[f.pa[0]*k,f.pa[1]*k];}});
+  return{polys,info};
+}
+function overlaps(polys){
+  let c=0;const sep=(A,B)=>{for(const X of[A,B])for(let i=0;i<X.length;i++){const p=X[i],q=X[(i+1)%X.length],ax=[q[1]-p[1],p[0]-q[0]],l=Math.hypot(ax[0],ax[1]);
+    const pr=Y=>{const v=Y.map(r=>(r[0]*ax[0]+r[1]*ax[1])/l);return[Math.min(...v),Math.max(...v)]},a=pr(A),b=pr(B);if(a[1]<=b[0]+1e-6||b[1]<=a[0]+1e-6)return true}return false};
+  for(let i=0;i<polys.length;i++)for(let j=i+1;j<polys.length;j++)if(!sep(polys[i],polys[j]))c++;return c}
+
+/* ---------- Қазіргі дене ---------- */
+let PTS=[],OWN=[],ZM=1,sol=null,ORD=[],INFO=[],FL=[],LAB=[],KIND=[],NI=[],NL={},STAT=null,NC=[0,0],SC=[0,0,0],Q=I3;
+function poses(t,off){const P=[];ORD.forEach(o=>{if(o.par<0){P[o.i]={R:I3,p:off};return}
+  const q=P[o.par],f=INFO[o.i],Rk=rod(f.k,t*f.alpha),pa=[f.pa[0],f.pa[1],0];
+  P[o.i]={R:mm(q.R,Rk),p:add(mv(q.R,sub(pa,mv(Rk,pa))),q.p)}});return P}
+function makeNet(){
+  const H=hullOf(sol);let best=null;
+  for(let t=0;t<(sol.k=='r'?1:600);t++){const ord=sol.k=='r'?chain(H):randTree(H),u=unfold(H,ord),ov=overlaps(u.polys);
+    if(!best||ov<best.ov)best={ord,u,ov};if(!ov)break}
+  ORD=best.ord;INFO=best.u.info;
+  FL=best.u.polys.map(pl=>{const c=[pl.reduce((s,p)=>s+p[0],0)/pl.length,pl.reduce((s,p)=>s+p[1],0)/pl.length];
+    let r=1e9;pl.forEach((p,i)=>{const q=pl[(i+1)%pl.length],l=Math.hypot(q[0]-p[0],q[1]-p[1]);r=Math.min(r,Math.abs((q[0]-p[0])*(p[1]-c[1])-(q[1]-p[1])*(p[0]-c[0]))/l)});return{poly:pl,cen:c,rad:r}});
+  {const A=FL.flatMap(f=>f.poly),X=A.map(q=>q[0]),Y=A.map(q=>q[1]);NC=[(Math.max(...X)+Math.min(...X))/2,(Math.max(...Y)+Math.min(...Y))/2]}
+  const P1=poses(1,[0,0,0]);SC=sc3(FL.reduce((s,f,i)=>add(s,add(mv(P1[i].R,[f.cen[0],f.cen[1],0]),P1[i].p)),[0,0,0]),1/FL.length);
+  ZM=Math.max(1,Math.min(2,2/Math.max(...FL.flatMap((f,i)=>f.poly.map(c=>len(sub(add(mv(P1[i].R,[c[0],c[1],0]),P1[i].p),SC)))))));
+  NI=P1.map(q=>mv(q.R,[0,0,1]).map(x=>sol.orient?Math.round(x)+0:x));
+  LAB=FL.map(()=>null);KIND=FL.map(()=>'n');PTS=[];
+  FL.forEach((f,i)=>f.poly.forEach((p,k)=>{const v=H.F[i].on[k];let c=PTS.find(q=>q.v==v&&Math.hypot(q.pos[0]-p[0],q.pos[1]-p[1])<1e-4);
+    if(!c){c={v,pos:p,corners:[],lab:null,st:'n',show:false};PTS.push(c)}c.corners.push({i,k})}));
+  PTS.forEach(c=>{c.i=c.corners[0].i;c.k=c.corners[0].k});OWN=FL.map((_,i)=>PTS.filter(c=>c.i==i));
+  NL={};LAB.forEach((l,i)=>{if(l)NL[l]=NI[i]});Q=I3;tg=tcur=0;used=false;
+}
+function load(id){sol=SOL.find(s=>s.id==id);STAT=null;
+  if(sol.k=='s'){STAT=statQuads(sol);ORD=[];FL=[];LAB=[];NL={};Q=I3;tg=tcur=0;used=false}else makeNet();
+  $('#foldbar').hidden=!!STAT;
+  const H=sol.k=='s'?null:hullOf(sol),r=sol.real;
+  $('#info').innerHTML=`<b>${sol.n}</b> · `+(sol.k?`беттер: ${r.f} · қырлар: ${r.e} · төбелер: ${r.v}`+(sol.dev?' · жазбасы бар (көпжақпен жуықталған)':' · жазықтыққа жаю мүмкін емес'):`жақтар: ${H.F.length} · қырлар: ${H.E} · төбелер: ${H.V}`);
+}
+function recolor(hi,ok){KIND=LAB.map((l,i)=>i==ok?'ok':i==hi?'hl':'n')}
+/* жазбасы жоқ денелер: торлы бет */
+function statQuads(s){
+  const q=[],g=(fn,nu,nv,u0,u1,v0,v1)=>{for(let i=0;i<nu;i++)for(let j=0;j<nv;j++){const u=k=>u0+(u1-u0)*k/nu,v=k=>v0+(v1-v0)*k/nv;
+    q.push({pts:[fn(u(i),v(j)),fn(u(i+1),v(j)),fn(u(i+1),v(j+1)),fn(u(i),v(j+1))].map(r=>r[0]),n:fn(u(i+.5),v(j+.5))[1]})}};
+  if(s.st=='tor'){g((u,v)=>[[(1.5+.65*Math.cos(v))*Math.cos(u),.65*Math.sin(v),(1.5+.65*Math.cos(v))*Math.sin(u)],[Math.cos(v)*Math.cos(u),Math.sin(v),Math.cos(v)*Math.sin(u)]],36,18,0,2*Math.PI,0,2*Math.PI);return q}
+  const[a,b,c]=s.par,e=(u,v)=>{const p=[a*Math.sin(v)*Math.cos(u),b*Math.cos(v),c*Math.sin(v)*Math.sin(u)];return[p,nrm([p[0]/a/a,p[1]/b/b,p[2]/c/c])]};
+  g(e,30,16,0,2*Math.PI,0,s.st=='hem'?Math.PI/2:Math.PI);
+  if(s.st=='hem')for(let i=0;i<30;i++){const u=k=>2*Math.PI*k/30;q.push({pts:[[0,0,0],[a*Math.cos(u(i)),0,c*Math.sin(u(i))],[a*Math.cos(u(i+1)),0,c*Math.sin(u(i+1))]],n:[0,-1,0]})}
+  q.forEach(r=>r.pts=r.pts.map(p=>[p[0],p[1]-(s.st=='hem'?b/2:0),p[2]]));return q}
+
+/* ---------- Сурет салу ---------- */
+const stage=$('#stage'),cv=document.createElement('canvas'),ctx=cv.getContext('2d');stage.prepend(cv);
+let W=400,H0=300,DPR=1;const S=2.5;
+function fit(){W=stage.clientWidth||400;H0=Math.round(W*.85);DPR=Math.max(2,Math.min(devicePixelRatio||1,3));cv.width=W*DPR;cv.height=H0*DPR;cv.style.width=W+'px';cv.style.height=H0+'px'}
+const FRGB={n:[238,242,255],hl:[240,138,36],ok:[34,197,94]},MC={n:'#fff',red:'#e11d2e',ok:'#22c55e'},MS={n:'#1f2937',red:'#7f1d1d',ok:'#14532d'},FILL={n:'#eef2ff',hl:'#f08a24',ok:'#22c55e'},INK={n:'#1b2440',hl:'#fff',ok:'#fff'},LT=nrm([-.3,.5,.8]);
+function draw(t){
+  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H0);if(!sol)return;
+  const Tot=mm(mm(Rx(cur.p),Ry(-cur.t)),part(Q,t)),sc=H0/(2*S)*(STAT?1:1+(ZM-1)*t),sp=v=>{const r=mv(Tot,v);return[W/2+r[0]*sc,H0/2-r[1]*sc,r[2]]};
+  if(STAT){const fs=[];STAT.forEach(f=>{const nv=mv(Tot,f.n);if(nv[2]<=0)return;const ps=f.pts.map(sp);fs.push({ps,z:ps.reduce((s,p)=>s+p[2],0),sh:.35+.65*Math.max(0,dot(nv,LT))})});
+    fs.sort((a,b)=>a.z-b.z).forEach(f=>{const c=`rgb(${Math.round(91*f.sh)},${Math.round(124*f.sh)},${Math.round(255*f.sh)})`;ctx.beginPath();f.ps.forEach((p,j)=>j?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=c;ctx.fill();ctx.lineWidth=.7;ctx.strokeStyle=c;ctx.stroke()});return}
+  const off=[-NC[0]*(1-t)-SC[0]*t,-NC[1]*(1-t)-SC[1]*t,-SC[2]*t],P=poses(t,off);
+  const fs=FL.map((f,i)=>{const q=P[i],at=([x,y])=>add(mv(q.R,[x,y,0]),q.p),c=sp(at(f.cen));
+    return{i,f,at,nv:mv(Tot,mv(q.R,[0,0,1])),pts:f.poly.map(p=>sp(at(p))),z:c[2],c,front:mv(Tot,mv(q.R,[0,0,1]))[2]>0,ex:mv(Tot,mv(q.R,[1,0,0])),ey:mv(Tot,mv(q.R,[0,1,0]))}}).sort((a,b)=>a.z-b.z);
+  fs.forEach(o=>{const k=KIND[o.i];ctx.beginPath();o.pts.forEach((p,j)=>j?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+    {const sh=.84+.16*Math.min(1,Math.max(0,dot(o.nv,LT))/.8),b=FRGB[k];ctx.fillStyle=o.front?`rgb(${Math.round(b[0]*sh)},${Math.round(b[1]*sh)},${Math.round(b[2]*sh)})`:'#8d99bb'}ctx.fill();ctx.lineWidth=1.4;ctx.strokeStyle='#1f2937';ctx.lineJoin='round';ctx.stroke();
+    if(o.front)OWN[o.i].forEach(p=>{if(!p.show)return;const cs=sp(o.at(o.f.poly[p.k])),dx=o.c[0]-cs[0],dy=o.c[1]-cs[1],dl=Math.hypot(dx,dy)||1,r=Math.max(8,Math.min(14,o.f.rad*sc*.34))*(p.st=='red'?1.1:1),mx=cs[0]+dx/dl*(r+1),my=cs[1]+dy/dl*(r+1);
+      ctx.beginPath();ctx.arc(mx,my,r,0,6.3);ctx.fillStyle=MC[p.st];ctx.fill();ctx.lineWidth=1.6;ctx.strokeStyle=MS[p.st];ctx.stroke();
+      ctx.beginPath();ctx.arc(cs[0],cs[1],2.5,0,6.3);ctx.fillStyle='#1f2937';ctx.fill();
+      if(p.lab!=null){ctx.fillStyle=p.st=='n'?'#1b2440':'#fff';ctx.font='700 '+Math.round(r*1.2)+'px "PT Sans",sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.lab,mx,my+.5)}});
+    if(!o.front||LAB[o.i]==null)return;
+    const u=sc/100,fz=Math.max(16,Math.min(58,o.f.rad*100*.95)),txt=(k=='hl'?'★':'')+LAB[o.i];
+    ctx.save();ctx.transform(o.ex[0]*u,-o.ex[1]*u,o.ey[0]*u,-o.ey[1]*u,o.c[0],o.c[1]);ctx.scale(1,-1);
+    ctx.fillStyle=INK[k];ctx.font='700 '+fz+'px "PT Serif",Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,0,fz*.07);
+    if(LAB[o.i]==6||LAB[o.i]==9)ctx.fillRect(-fz*.2,fz*.5,fz*.4,Math.max(2,fz*.07));ctx.restore()});
+}
+/* X — төменде, Y — артта */
+function orient(X,Y){
+  const a=NL[X],b=NL[Y];if(X==Y||Math.abs(dot(a,b))>.5)return null;
+  const c=cross(a,b),D=[0,-1,0],B=[0,0,-1];
+  return{q:mm(cols(D,B,cross(D,B)),tp(cols(a,b,c))),at:{right:c,left:neg(c),front:neg(b),top:neg(a),bottom:a,back:b}};
+}
+const faceAt=v=>+Object.keys(NL).find(n=>dot(NL[n],v)>.5);
+
+/* камера */
+const VW={front:{t:0,p:0},right:{t:Math.PI/2,p:0},back:{t:Math.PI,p:0},left:{t:-Math.PI/2,p:0},top:{t:0,p:1.55},iso:{t:Math.PI/4,p:.55}};
+const LBL={front:'Алдынан',right:'Оң жағынан',back:'Артынан',left:'Сол жағынан',top:'Үстінен',iso:'3D'};
+const cur={t:0,p:0},goal={t:0,p:0};let drag=null,tg=0,tcur=0,used=false,done=false;
+function setView(k,v){v=v||VW[k];const f=2*Math.PI;goal.t=v.t+Math.round((cur.t-v.t)/f)*f;goal.p=v.p;$('#bd').textContent='Көру бағыты: '+(LBL[k]||'жазба')}
+$('#vb').innerHTML=Object.keys(VW).map(k=>`<button data-v="${k}">${LBL[k]}</button>`).join('');
+$('#vb').onclick=e=>{const k=e.target.dataset.v;if(k)setView(k)};
+function fold(t){tg=t;if(t>.05&&!done)used=true;setView(t?'iso':'front')}
+$('#bFlat').onclick=()=>fold(0);$('#bCube').onclick=()=>fold(1);
+$('#sl').addEventListener('input',e=>{tg=tcur=e.target.value/100;if(tg>.05&&!done)used=true});
+stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;cur.t-=(e.clientX-drag.x)*.01;cur.p=Math.max(-1.55,Math.min(1.55,cur.p+(e.clientY-drag.y)*.01));drag.x=e.clientX;drag.y=e.clientY;goal.t=cur.t;goal.p=cur.p;$('#bd').textContent='Көру бағыты: еркін'});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>drag=null));
+(function loop(){requestAnimationFrame(loop);
+  if(!drag){cur.t+=(goal.t-cur.t)*.12;cur.p+=(goal.p-cur.p)*.12}
+  tcur+=(tg-tcur)*.09;if(Math.abs(tg-tcur)<.002)tcur=tg;$('#sl').value=Math.round(tcur*100);draw(tcur)})();
+new ResizeObserver(fit).observe(stage);fit();
+
+/* ---------- Есептер ---------- */
+let lv=1,tb=0,score=0,streak=0,K=null,CUR=null,SEL=0;
+const fg=$('#fg');
+[...new Set(POLY.map(s=>s.g))].forEach(g=>{const o=document.createElement('optgroup');o.label=g;POLY.filter(s=>s.g==g).forEach(s=>{const p=document.createElement('option');p.value=s.id;p.textContent=s.n;o.appendChild(p)});fg.appendChild(o)});
+fg.onchange=()=>tab(tb);
+$('#rf').onclick=()=>{fg.value=POLY[rnd(POLY.length)].id;tab(tb)};
+$('#lvs').onclick=e=>{const l=e.target.dataset.l;if(!l)return;lv=+l;[...$('#lvs').children].forEach(b=>b.classList.toggle('on',b.dataset.l==l));tab(tb)};
+function tab(i){tb=i;$('#t0').classList.toggle('on',!i);$('#t1').classList.toggle('on',!!i);$('#quiz').hidden=!!i;$('#lab').hidden=!i;$('#lvs').hidden=!!i;
+  load(fg.value);cur.t=goal.t=0;cur.p=goal.p=0;setView('front');done=false;i?newLab():newQ()}
+$('#t0').onclick=()=>tab(0);$('#t1').onclick=()=>tab(1);
+function setup(){
+  for(let tr=0;tr<60;tr++){makeNet();const g={};PTS.forEach(c=>(g[c.v]=g[c.v]||[]).push(c));const vs=Object.keys(g).filter(v=>g[v].length>=2);if(!vs.length)continue;
+    const v0=+vs[rnd(vs.length)],cl=g[v0],red=cl[rnd(cl.length)];
+    return{v0,red,ans:cl.filter(c=>c!==red),oth:shuf(PTS.filter(c=>c.v!=v0)),deg:hullOf(sol).F.filter(f=>f.on.includes(v0)).length}}
+}
+const nums=c=>{const o=new Set();[1,-1,2,-2,3].forEach(d=>c+d>=1&&o.add(c+d));return shuf([...o]).slice(0,3)};
+const key=a=>[...a].sort((x,y)=>x-y).join(', ');
+function newQ(){
+  done=false;K=null;const S0=setup(),D=[3,4,7][lv-1],shown=S0.oth.slice(0,D);CUR=S0;
+  shuf([...S0.ans,...shown]).forEach((c,i)=>{c.lab=i+1;c.show=true});S0.red.show=true;S0.red.st='red';
+  const A=S0.ans.map(c=>c.lab).sort((a,b)=>a-b),O=shown.map(c=>c.lab).sort((a,b)=>a-b),RD='<span class="rd">қызыл нүкте</span>';
+  let ty=[['single'],['set','set','deg','cnt'],['set','not','set','deg','cnt']][lv-1];ty=ty[rnd(ty.length)];if(ty=='not'&&A.length<2)ty='set';
+  let q,opts,ans,ex=`Дененің қызыл нүкте тұрған төбесінде <b>${S0.deg}</b> жақ түйіседі. Жазбада бұл төбе <b>${A.length+1}</b> бөлек нүкте болып көрінеді: қызыл нүкте және <b>${key(A)}</b> сандары.`;
+  if(ty=='single'){const a=A[rnd(A.length)];q=`Жазба бүктелгенде ${RD} қай санмен түйіседі?`;ans=String(a);opts=shuf([a,...shuf(O).slice(0,3)])}
+  else if(ty=='set'){q=`Жазбадан дене жинағанда ${RD} қай сандармен бір төбеде түйіседі? (барлығын көрсетіңіз)`;
+    const right=key(A),wr=new Set(),add=a=>{if(a.length&&key(a)!=right)wr.add(key(a))};
+    if(A.length>1)A.forEach((_,i)=>add(A.filter((_,j)=>j!=i)));A.forEach((_,i)=>O.forEach(o=>add(A.map((x,j)=>j==i?o:x))));O.forEach(o=>add([...A,o]));
+    for(let a=0;a<O.length;a++)for(let b=a+1;b<O.length;b++)add([O[a],O[b]]);
+    ans=right;opts=shuf([right,...shuf([...wr]).slice(0,3)])}
+  else if(ty=='not'){q=`Жазба бүктелгенде ${RD} қай санмен түйіспейді?`;const a=O[rnd(O.length)];ans=String(a);opts=shuf([a,...shuf(A).slice(0,3)]);ex=`Түйіспейтін сан: <b>${a}</b>. `+ex}
+  else if(ty=='deg'){q=`Дене жиналғанда ${RD} тұрған төбеде барлығы неше жақ түйіседі?`;ans=String(S0.deg);opts=shuf([S0.deg,...nums(S0.deg)])}
+  else{q=`Жазба бүктелгенде ${RD} барлығы неше санмен түйіседі?`;ans=String(A.length);opts=shuf([A.length,...nums(A.length)])}
+  K={ty,ans,ex};
+  $('#quiz').innerHTML=`<div class="bar"><span class="stat">Ұпай: <b id="sc">${score}</b> · Қатарынан: <b id="st">${streak}</b></span></div>
+  <div class="q">Фигура: <span class="hl">${sol.n}</span>. ${q}</div><div class="opts">${opts.map((o,i)=>`<button class="opt" data-v="${o}"><span>${'АӘБВ'[i]}</span>${o}</button>`).join('')}</div>
+  <div id="fb"></div><div id="ex"></div><button id="nx" class="go" hidden>Келесі есеп</button>
+  <p class="hint">Кеңес: «Дене» түймесі жазбаны бүктеп көрсетеді, бірақ көмексіз жауап көбірек ұпай береді.</p>`;
+}
+$('#quiz').onclick=e=>{
+  if(e.target.closest('#nx'))return newQ();
+  const b=e.target.closest('.opt');if(!b||done)return;done=true;const ok=b.dataset.v==K.ans;
+  document.querySelectorAll('.opt').forEach(x=>{if(x.dataset.v==K.ans)x.classList.add('ok')});if(!ok)b.classList.add('bad');
+  if(ok){streak++;score+=used?5:10+Math.min(streak,5)*2}else streak=0;
+  $('#sc').textContent=score;$('#st').textContent=streak;
+  const fb=$('#fb');fb.style.color=ok?'var(--ok)':'var(--bad)';
+  fb.textContent=ok?(used?'Дұрыс! (көмекпен: 5 ұпай)':'Дұрыс! Көмексіз шештіңіз.'):`Қате. Дұрыс жауап: ${K.ans}.`;
+  $('#ex').innerHTML=K.ex;CUR.ans.forEach(c=>c.st='ok');fold(1);$('#nx').hidden=false;
+};
+
+/* ---------- Зертхана ---------- */
+function newLab(){PTS.forEach((c,i)=>{c.lab=i+1;c.show=true;c.st='n'});SEL=0;renderLab('')}
+function renderLab(msg){
+  $('#lab').innerHTML=`<div class="q">${sol.n}: төбелерді зерттеу</div><div>Жазбадағы нүктені таңдаңыз (ол қызыл болады):</div>
+  <div class="row">${PTS.map((_,i)=>`<button data-n="${i+1}" class="${SEL==i+1?'on':''}">${i+1}</button>`).join('')}</div>
+  <div id="ex">${msg||'Нүктені таңдасаңыз, онымен түйісетін басқа сандар жасыл болады. «Дене» түймесімен тексеріңіз.'}</div><div class="row"><button id="ln" class="go">Жаңа жазба</button></div>`;
+}
+$('#lab').onclick=e=>{
+  if(e.target.closest('#ln'))return tab(1);
+  const b=e.target.closest('.row button');if(!b||!b.dataset.n)return;SEL=+b.dataset.n;
+  PTS.forEach(c=>c.st='n');const r=PTS[SEL-1];r.st='red';const same=PTS.filter(c=>c!==r&&c.v==r.v);same.forEach(c=>c.st='ok');
+  const deg=hullOf(sol).F.filter(f=>f.on.includes(r.v)).length;
+  renderLab(same.length?`${SEL} нүктесі <b>${same.map(c=>PTS.indexOf(c)+1).join(', ')}</b> нүктелерімен түйіседі. Бұл төбеде ${deg} жақ түйіседі.`:`${SEL} нүктесі басқа нүктемен түйіспейді: төбенің барлық жағы жазбада бір жерде тұр. Бұл төбеде ${deg} жақ түйіседі.`);
+};
+tab(0);
+</script>
+</body>
+</html>

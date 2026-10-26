@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кеңістіктік ойлау зертханасы</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@700&display=swap">
+<style>
+:root{--bg:#f4f6fb;--paper:#fff;--grid:#d6dff2;--tx:#1b2440;--mu:#5d6b8c;--ac:#2b4acb;--ok:#15803d;--bad:#c62828;--bd:#c9d3ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}}
+:root[data-theme="dark"]{--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg) linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px;background-blend-mode:normal;color:var(--tx);font:16px/1.45 "PT Sans",system-ui,sans-serif;min-height:100vh}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 40px}
+h1{font:700 clamp(22px,4.5vw,32px)/1.15 "PT Serif",Georgia,serif;margin:4px 0 4px}
+.sub{color:var(--mu);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs,.lvs,.vb{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;color:var(--tx);background:var(--paper);border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ac)}button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.stat{color:var(--mu)}.stat b{color:var(--tx)}
+.wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}
+.card{min-width:0;background:var(--paper);border:1.5px solid var(--bd);border-radius:12px;padding:12px}
+#stage{position:relative;overflow:hidden;border-radius:8px;border:1.5px solid var(--bd);touch-action:none;cursor:grab;background:var(--bg)}
+#stage canvas{display:block;max-width:100%}
+.badge{position:absolute;left:8px;top:8px;background:var(--paper);border:1.5px solid var(--bd);border-radius:6px;padding:2px 9px;font-size:14px;pointer-events:none}
+.ng{position:absolute;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;text-align:center;cursor:default}
+.ng p{margin:0 0 8px;color:var(--mu);font-size:14px}
+.ng table{border-collapse:separate;border-spacing:0;margin:0 auto}
+.ng td{width:clamp(42px,12vw,58px);height:clamp(42px,12vw,58px);border:2px solid var(--bd);font:700 22px "PT Serif",serif}
+.vb{margin:10px 0 6px}.vb button{padding:5px 10px}
+small,.hint{color:var(--mu);font-size:13.5px}
+.q{font-weight:700;margin:2px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{padding:6px;text-align:center;position:relative}
+.opt svg,figure svg{width:100%;height:auto;display:block}
+.opt span{position:absolute;left:8px;top:4px;color:var(--mu);font-weight:700}
+.opt.ok{border-color:var(--ok);border-width:3px}.opt.bad{border-color:var(--bad);border-width:3px}
+.u{fill:var(--ac);stroke:var(--paper);stroke-width:.07}.fr{fill:none;stroke:var(--bd);stroke-width:.04;stroke-dasharray:.1 .1}
+#fb,#fb2{margin:10px 0;min-height:1.4em;font-weight:700}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
+figure{margin:0;text-align:center}figcaption{font-size:14px;color:var(--mu)}
+.bgrid{display:grid;gap:6px;max-width:260px;margin:6px 0}
+.bgrid button{aspect-ratio:1;font:700 20px "PT Serif",serif;padding:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.go{background:var(--ac);color:#fff;border-color:var(--ac)}
+</style>
+</head>
+<body>
+<main>
+<h1>Кеңістіктік ойлау зертханасы</h1>
+<p class="sub">Құрылысты бұрып қараңыз, көріністерін болжаңыз, керісінше көріністен құрылыс құраңыз.</p>
+<div class="bar">
+  <div class="tabs"><button id="t0" class="on">Қай көрініс?</button><button id="t1">Құрастыр</button></div>
+  <div class="lvs" id="lvs"><button data-l="1" class="on">1-деңгей</button><button data-l="2">2-деңгей</button><button data-l="3">3-деңгей: сандар торы</button></div>
+</div>
+<div class="wrap">
+  <section class="card">
+    <div id="stage"><div class="badge" id="bd">Көру бағыты: 3D</div><div class="ng" id="ng" hidden></div></div>
+    <div class="vb" id="vb"></div>
+    <small>Жасыл жиек — алдыңғы жақ, қызғылт сары жиек — оң жақ. Суретті сүйреп айналдырыңыз.</small>
+  </section>
+  <section class="card">
+    <div id="quiz"></div>
+    <div id="build" hidden></div>
+  </section>
+</div>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),sum=a=>a.reduce((x,y)=>x+y,0),rnd=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const rev=a=>[...a].reverse();
+const front=H=>H[0].map((_,c)=>Math.max(...H.map(r=>r[c])));
+const right=H=>rev(H).map(r=>Math.max(...r));
+const VIEW={front,right,back:H=>rev(front(H)),left:H=>rev(right(H))};
+const NAMES={front:'алдынан',right:'оң жағынан',back:'артынан',left:'сол жағынан'};
+const CFG={1:{n:3,mh:3,v:['front','right']},2:{n:4,mh:3,v:['front','right','back','left']},3:{n:4,mh:4,v:['front','right','back','left'],hide:1}};
+const svg=(a,n)=>{let s=`<svg viewBox="-.15 -.15 ${n+.3} ${n+.3}"><rect class="fr" width="${n}" height="${n}"/>`;a.forEach((h,i)=>{for(let k=0;k<h;k++)s+=`<rect class="u" x="${i}" y="${n-1-k}" width="1" height="1"/>`});return s+'</svg>'};
+function newGrid(n,mh){let H;do{H=Array.from({length:n},()=>Array.from({length:n},()=>Math.random()<.22?0:1+rnd(mh)))}while(sum(H.flat())<n+3||Math.max(...H.flat())<mh);return H}
+
+/* ---------- 3D ---------- */
+const stage=$('#stage'),R=new THREE.WebGLRenderer({antialias:true,alpha:true});
+R.setPixelRatio(Math.min(devicePixelRatio||1,2));stage.prepend(R.domElement);
+const scene=new THREE.Scene(),cam=new THREE.OrthographicCamera(-1,1,1,-1,.1,100),G=new THREE.Group();
+scene.add(G,cam,new THREE.AmbientLight(0xffffff,.78));
+const dl=new THREE.DirectionalLight(0xffffff,.5);dl.position.set(2,5,6);cam.add(dl);
+const geo=new THREE.BoxGeometry(1,1,1),eg=new THREE.EdgesGeometry(geo),lm=new THREE.LineBasicMaterial({color:0x1f2937});
+const mats=[0x6f7cff,0x22b8cf,0x40c057,0xfab005,0xf06595].map(c=>new THREE.MeshLambertMaterial({color:c}));
+let S=4,T=1.4;
+function fit(){const w=stage.clientWidth||400,h=Math.round(w*.75),a=w/h;R.setSize(w,h);cam.left=-S*a;cam.right=S*a;cam.top=S;cam.bottom=-S;cam.updateProjectionMatrix()}
+function setGrid(H){
+  G.clear();const n=H.length,o=(n-1)/2;S=n*.7+1.4;T=n*.45;
+  const gh=new THREE.GridHelper(n,n,0x9aa3b2,0x9aa3b2);G.add(gh);
+  const gm=new THREE.Mesh(new THREE.BoxGeometry(n,.08,.14),new THREE.MeshBasicMaterial({color:0x22c55e}));gm.position.set(0,.04,n/2+.12);
+  const om=new THREE.Mesh(new THREE.BoxGeometry(.14,.08,n),new THREE.MeshBasicMaterial({color:0xf97316}));om.position.set(n/2+.12,.04,0);G.add(gm,om);
+  H.forEach((row,r)=>row.forEach((h,c)=>{for(let k=0;k<h;k++){const m=new THREE.Mesh(geo,mats[k%5]);m.position.set(c-o,k+.5,r-o);m.add(new THREE.LineSegments(eg,lm));G.add(m)}}));
+  fit();
+}
+const VW={front:{t:0,p:0},right:{t:Math.PI/2,p:0},back:{t:Math.PI,p:0},left:{t:-Math.PI/2,p:0},top:{t:0,p:1.55},iso:{t:Math.PI/4,p:.55}};
+const LBL={front:'Алдынан',right:'Оң жағынан',back:'Артынан',left:'Сол жағынан',top:'Үстінен',iso:'3D'};
+const cur={t:Math.PI/4,p:.55},goal={...cur};let drag=null;
+function setView(k){const v=VW[k],f=2*Math.PI;goal.t=v.t+Math.round((cur.t-v.t)/f)*f;goal.p=v.p;$('#bd').textContent='Көру бағыты: '+LBL[k]}
+$('#vb').innerHTML=Object.keys(VW).map(k=>`<button data-v="${k}">${LBL[k]}</button>`).join('');
+$('#vb').onclick=e=>{const k=e.target.dataset.v;if(k)setView(k)};
+stage.addEventListener('pointerdown',e=>{if(e.target.closest('#ng'))return;drag={x:e.clientX,y:e.clientY};stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;cur.t-=(e.clientX-drag.x)*.01;cur.p=Math.max(-.05,Math.min(1.55,cur.p+(e.clientY-drag.y)*.01));drag.x=e.clientX;drag.y=e.clientY;goal.t=cur.t;goal.p=cur.p;$('#bd').textContent='Көру бағыты: еркін'});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>drag=null));
+(function loop(){requestAnimationFrame(loop);if(!drag){cur.t+=(goal.t-cur.t)*.14;cur.p+=(goal.p-cur.p)*.14}
+  const d=20,c=Math.cos(cur.p);cam.position.set(Math.sin(cur.t)*c*d,T+Math.sin(cur.p)*d,Math.cos(cur.t)*c*d);cam.lookAt(0,T,0);R.render(scene,cam)})();
+new ResizeObserver(fit).observe(stage);
+
+/* ---------- Жалпы ---------- */
+let lv=1,tb=0,score=0,streak=0,Q=null,B=null;
+function tab(i){tb=i;$('#t0').classList.toggle('on',!i);$('#t1').classList.toggle('on',!!i);$('#quiz').hidden=!!i;$('#build').hidden=!i;i?newB():newQ()}
+$('#t0').onclick=()=>tab(0);$('#t1').onclick=()=>tab(1);
+$('#lvs').onclick=e=>{const l=e.target.dataset.l;if(!l)return;lv=+l;[...$('#lvs').children].forEach(b=>b.classList.toggle('on',b.dataset.l==l));tab(tb)};
+
+/* ---------- 1-режим: қай көрініс? ---------- */
+function newQ(){
+  const c=CFG[lv],H=newGrid(c.n,c.mh),v=c.v[rnd(c.v.length)],ans=VIEW[v](H);
+  const seen=new Set([ans+'']),d=[],add=a=>{if(!seen.has(a+'')){seen.add(a+'');d.push(a)}};
+  shuf(Object.keys(VIEW).filter(k=>k!=v).map(k=>VIEW[k](H))).slice(0,2).forEach(add);
+  for(let g=0;d.length<3&&g<300;g++){const m=[...ans],i=rnd(c.n);m[i]=Math.max(0,Math.min(c.mh,m[i]+(Math.random()<.5?-1:1)));add(m)}
+  const o=shuf([ans,...d]);Q={H,v,o,i:o.indexOf(ans),done:0,n:c.n};
+  setGrid(H);cur.t=goal.t=Math.PI/4;cur.p=goal.p=.55;setView('iso');
+  const ng=$('#ng');ng.hidden=!c.hide;
+  if(c.hide)ng.innerHTML=`<div><p>Үстінен көрініс: сан — ұяшықтағы текше саны.<br>Төменгі қатар — алдыңғы жақ.</p><table>${H.map((r,i)=>`<tr>${r.map((x,j)=>`<td style="${i==c.n-1?'border-bottom:5px solid #22c55e;':''}${j==c.n-1?'border-right:5px solid #f97316':''}">${x}</td>`).join('')}</tr>`).join('')}</table></div>`;
+  $('#quiz').innerHTML=`<div class="bar"><span class="stat">Ұпай: <b id="sc">${score}</b> · Қатарынан: <b id="st">${streak}</b></span></div>
+  <div class="q">Құрылысқа <u>${NAMES[v]}</u> қарағанда қандай көрініс шығады?</div>
+  <div class="opts">${o.map((a,i)=>`<button class="opt" data-i="${i}"><span>${'АӘБВ'[i]}</span>${svg(a,c.n)}</button>`).join('')}</div>
+  <div id="fb"></div><button id="nx" class="go" hidden>Келесі есеп</button>`;
+}
+$('#quiz').onclick=e=>{
+  if(e.target.closest('#nx'))return newQ();
+  const b=e.target.closest('.opt');if(!b||Q.done)return;Q.done=1;
+  const i=+b.dataset.i,ok=i==Q.i,bs=[...document.querySelectorAll('.opt')];
+  bs[Q.i].classList.add('ok');if(!ok)b.classList.add('bad');
+  if(ok){streak++;score+=10+Math.min(streak,5)*2}else streak=0;
+  $('#sc').textContent=score;$('#st').textContent=streak;
+  const fb=$('#fb');fb.style.color=ok?'var(--ok)':'var(--bad)';
+  fb.textContent=ok?'Дұрыс! 3D-де сол бағытпен салыстырыңыз.':'Қате. Дұрыс жауап жасыл жақтауда. Сурет сол бағытқа бұрылды.';
+  $('#ng').hidden=true;setView(Q.v);$('#nx').hidden=false;
+};
+
+/* ---------- 2-режим: көріністен құрылыс ---------- */
+function newB(){
+  const c=CFG[lv],H=newGrid(c.n,c.mh);
+  B={n:c.n,mh:c.mh,f:front(H),r:right(H),U:Array.from({length:c.n},()=>Array(c.n).fill(0))};
+  setGrid(B.U);$('#ng').hidden=true;cur.t=goal.t=Math.PI/4;cur.p=goal.p=.55;setView('iso');
+  $('#build').innerHTML=`<div class="q">Екі көрініске сай құрылыс жасаңыз. Ұяшықты басқанда текше қосылады.</div>
+  <div class="two"><figure>${svg(B.f,B.n)}<figcaption>Алдынан</figcaption></figure><figure>${svg(B.r,B.n)}<figcaption>Оң жағынан</figcaption></figure></div>
+  <div class="hint">Үстінен көрініс: төменгі қатар — алдыңғы жақ, оң баған — оң жақ.</div>
+  <div class="bgrid" style="grid-template-columns:repeat(${B.n},1fr)">${B.U.map((r,i)=>r.map((_,j)=>`<button data-r="${i}" data-c="${j}">0</button>`).join('')).join('')}</div>
+  <div>Текше саны: <b id="cnt">0</b></div><div id="fb2"></div>
+  <div class="row"><button id="chk" class="go">Тексер</button><button id="clr">Тазарту</button><button id="nw">Жаңа есеп</button></div>`;
+}
+$('#build').onclick=e=>{
+  const b=e.target.closest('button');if(!b||!B)return;
+  if(b.dataset.r!==undefined){const r=+b.dataset.r,c=+b.dataset.c;B.U[r][c]=(B.U[r][c]+1)%(B.mh+1);b.textContent=B.U[r][c];setGrid(B.U);$('#cnt').textContent=sum(B.U.flat());$('#fb2').textContent='';return}
+  if(b.id=='nw')return newB();
+  if(b.id=='clr'){B.U.forEach(r=>r.fill(0));document.querySelectorAll('.bgrid button').forEach(x=>x.textContent=0);setGrid(B.U);$('#cnt').textContent=0;$('#fb2').textContent='';return}
+  if(b.id=='chk'){
+    const fo=front(B.U)+''==B.f+'',ro=right(B.U)+''==B.r+'',fb=$('#fb2');
+    if(fo&&ro){
+      let mx=0,mn=0;const n=B.n;
+      for(let r=0;r<n;r++)for(let c=0;c<n;c++)mx+=Math.min(B.f[c],B.r[n-1-r]);
+      for(let v=1;v<=B.mh;v++)mn+=v*Math.max(B.f.filter(x=>x==v).length,B.r.filter(x=>x==v).length);
+      fb.style.color='var(--ok)';fb.textContent=`Дұрыс! Бұл көріністерге ең аз ${mn}, ең көп ${mx} текше сай келеді. Сізде — ${sum(B.U.flat())}.`;setView('iso');
+    }else{
+      fb.style.color='var(--bad)';
+      fb.textContent=!fo&&!ro?'Екі көрініс те сәйкес емес. 3D-ді алдынан және оңнан тексеріңіз.':!fo?'Алдынан көрініс сәйкес емес. Сурет алдыңғы бағытқа бұрылды.':'Оң жағынан көрініс сәйкес емес. Сурет оң бағытқа бұрылды.';
+      setView(!fo?'front':'right');
+    }
+  }
+};
+newQ();
+</script>
+</body>
+</html>

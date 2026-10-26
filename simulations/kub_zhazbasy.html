@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Куб жазбасы зертханасы</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@700&display=swap">
+<style>
+:root{--bg:#f4f6fb;--paper:#fff;--grid:#d6dff2;--tx:#1b2440;--mu:#5d6b8c;--ac:#2b4acb;--ok:#15803d;--bad:#c62828;--bd:#c9d3ea;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}}
+:root[data-theme="dark"]{--bg:#0f1426;--paper:#171e36;--grid:#222c4d;--tx:#e8ecf8;--mu:#97a3c4;--ac:#7c93ff;--ok:#4ade80;--bad:#ff7b7b;--bd:#33406b}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg) linear-gradient(var(--grid) 1px,transparent 1px) 0 0/24px 24px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/24px 24px;color:var(--tx);font:16px/1.45 "PT Sans",system-ui,sans-serif;min-height:100vh}
+main{max-width:1000px;margin:0 auto;padding:18px 14px 40px}
+h1{font:700 clamp(22px,4.5vw,32px)/1.15 "PT Serif",Georgia,serif;margin:4px 0 4px}
+.sub{color:var(--mu);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tabs,.lvs,.vb,.row{display:flex;flex-wrap:wrap;gap:6px}
+button{font:inherit;color:var(--tx);background:var(--paper);border:1.5px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--ac)}button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.stat{color:var(--mu)}.stat b{color:var(--tx)}
+.wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}
+.card{min-width:0;background:var(--paper);border:1.5px solid var(--bd);border-radius:12px;padding:12px}
+#stage{position:relative;overflow:hidden;border-radius:8px;border:1.5px solid var(--bd);touch-action:none;cursor:grab;background:var(--bg)}
+#stage canvas{display:block;max-width:100%}
+.badge{position:absolute;left:8px;top:8px;background:var(--paper);border:1.5px solid var(--bd);border-radius:6px;padding:2px 9px;font-size:14px;pointer-events:none}
+.vb{margin:10px 0 6px}.vb button{padding:5px 10px}
+.fold{display:flex;align-items:center;gap:8px;margin:8px 0}.fold input{flex:1;min-width:100px}
+small,.hint{color:var(--mu);font-size:13.5px}
+.q{font-weight:700;margin:2px 0 10px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{padding:12px 6px;text-align:center;position:relative;font:700 30px "PT Serif",serif}
+.opt span{position:absolute;left:8px;top:4px;color:var(--mu);font:700 14px "PT Sans",sans-serif}
+.opt.ok{border-color:var(--ok);border-width:3px}.opt.bad{border-color:var(--bad);border-width:3px}
+#fb{margin:10px 0;min-height:1.4em;font-weight:700}
+#ex{margin:6px 0;font-size:15px}
+.go{background:var(--ac);color:#fff;border-color:var(--ac)}
+.hl{color:#e8730c;font-weight:700}
+.lab .row{margin:6px 0 12px}.lab .row button{width:44px;font:700 20px "PT Serif",serif}
+</style>
+</head>
+<body>
+<main>
+<h1>Куб жазбасы зертханасы</h1>
+<p class="sub">Жазбаны кубқа бүктеңіз, айналдырыңыз және қай жақ қайда болатынын болжаңыз. Сандар кубтың сыртында.</p>
+<div class="bar">
+  <div class="tabs"><button id="t0" class="on">Қай жақ?</button><button id="t1">Зертхана</button></div>
+  <div class="lvs" id="lvs"><button data-l="1" class="on">1-деңгей: крест</button><button data-l="2">2-деңгей: бағыттар</button><button data-l="3">3-деңгей: кез келген жазба</button></div>
+</div>
+<div class="wrap">
+  <section class="card">
+    <div id="stage"><div class="badge" id="bd">Көру бағыты: жазба</div></div>
+    <div class="fold"><button id="bFlat">Жазба</button><input type="range" id="sl" min="0" max="100" value="0" aria-label="Бүктеу"><button id="bCube">Куб</button></div>
+    <div class="vb" id="vb"></div>
+    <small>★ жақ — үстелде жатқан (төменгі) жақ. Суретті сүйреп айналдырыңыз.</small>
+  </section>
+  <section class="card">
+    <div id="quiz"></div>
+    <div id="lab" class="lab" hidden></div>
+  </section>
+</div>
+</main>
+<script>
+const $=s=>document.querySelector(s),rnd=n=>Math.floor(Math.random()*n);
+const shuf=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const HP=Math.PI/2;
+
+/* ---------- Математика (3x3 матрицалар) ---------- */
+const I3=[1,0,0,0,1,0,0,0,1];
+const mm=(A,B)=>{const C=[];for(let i=0;i<3;i++)for(let j=0;j<3;j++)C.push(A[i*3]*B[j]+A[i*3+1]*B[3+j]+A[i*3+2]*B[6+j]);return C};
+const mv=(A,v)=>[A[0]*v[0]+A[1]*v[1]+A[2]*v[2],A[3]*v[0]+A[4]*v[1]+A[5]*v[2],A[6]*v[0]+A[7]*v[1]+A[8]*v[2]];
+const tp=A=>[A[0],A[3],A[6],A[1],A[4],A[7],A[2],A[5],A[8]];
+const Rx=a=>{const c=Math.cos(a),s=Math.sin(a);return[1,0,0,0,c,-s,0,s,c]};
+const Ry=a=>{const c=Math.cos(a),s=Math.sin(a);return[c,0,s,0,1,0,-s,0,c]};
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const neg=a=>[-a[0]+0,-a[1]+0,-a[2]+0];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const cols=(a,b,c)=>[a[0],b[0],c[0],a[1],b[1],c[1],a[2],b[2],c[2]];
+function quat(m){let w,x,y,z,s;const t=m[0]+m[4]+m[8];
+  if(t>0){s=Math.sqrt(t+1)*2;w=s/4;x=(m[7]-m[5])/s;y=(m[2]-m[6])/s;z=(m[3]-m[1])/s}
+  else if(m[0]>m[4]&&m[0]>m[8]){s=Math.sqrt(1+m[0]-m[4]-m[8])*2;w=(m[7]-m[5])/s;x=s/4;y=(m[1]+m[3])/s;z=(m[2]+m[6])/s}
+  else if(m[4]>m[8]){s=Math.sqrt(1+m[4]-m[0]-m[8])*2;w=(m[2]-m[6])/s;x=(m[1]+m[3])/s;y=s/4;z=(m[5]+m[7])/s}
+  else{s=Math.sqrt(1+m[8]-m[0]-m[4])*2;w=(m[3]-m[1])/s;x=(m[2]+m[6])/s;y=(m[5]+m[7])/s;z=s/4}
+  return[w,x,y,z]}
+function fromQ(w,x,y,z){return[1-2*(y*y+z*z),2*(x*y-z*w),2*(x*z+y*w),2*(x*y+z*w),1-2*(x*x+z*z),2*(y*z-x*w),2*(x*z-y*w),2*(y*z+x*w),1-2*(x*x+y*y)]}
+function part(M,t){let[w,x,y,z]=quat(M);if(w<0){w=-w;x=-x;y=-y;z=-z}
+  const s=Math.sqrt(Math.max(0,1-w*w));if(s<1e-6)return I3;const a=2*Math.acos(Math.min(1,w))*t,k=Math.sin(a/2)/s;return fromQ(Math.cos(a/2),x*k,y*k,z*k)}
+
+/* ---------- Жазбалар ---------- */
+const CROSS={rows:["..X.","XXXX",".X.."],labels:[5,1,2,3,4,6]};
+const rs=i=>[0,1,2,3].map(k=>k==i?'X':'.').join('');
+const RAW=[["XX..",".XXX","..X."],["XX..",".XXX",".X.."],["XX..",".XXX","...X"],["XX..",".XX.","..XX"],["XXX..","..XXX"]];
+for(let a=0;a<4;a++)for(let b=0;b<4;b++)RAW.push([rs(a),"XXXX",rs(b)]);
+const toCells=rows=>{const c=[];rows.forEach((s,r)=>[...s].forEach((ch,k)=>ch=='X'&&c.push({r,c:k})));return c};
+const DIRS=[[0,1],[0,-1],[1,0],[-1,0]];
+/* BFS ағашы: әр жақтың ата-анасы және иілу осі */
+function tree(cs){
+  const idx=new Map(cs.map((p,i)=>[p.r+','+p.c,i])),seen=new Set([0]),ord=[{i:0,par:-1,dx:0,dy:0}];
+  for(let k=0;k<ord.length;k++){const p=cs[ord[k].i];
+    for(const[dr,dc]of DIRS){const j=idx.get((p.r+dr)+','+(p.c+dc));if(j===undefined||seen.has(j))continue;seen.add(j);ord.push({i:j,par:ord[k].i,dx:dc,dy:-dr})}}
+  return ord.length==6?ord:null}
+function poses(ord,t,off){
+  const P=[];ord.forEach(o=>{
+    if(o.par<0){P[o.i]={R:I3,p:off};return}
+    const q=P[o.par],h=[o.dx/2,o.dy/2,0],rot=o.dx?Ry(o.dx*HP*t):Rx(-o.dy*HP*t),R=mm(q.R,rot);
+    P[o.i]={R,p:add(add(q.p,mv(q.R,h)),mv(R,h))}});return P}
+/* бүктелген кубтағы әр жақтың сыртқы нормалі */
+function norms(cs){const o=tree(cs);if(!o)return null;
+  const v=poses(o,1,[0,0,0]).map(q=>mv(q.R,[0,0,1]).map(x=>Math.round(x)+0));
+  return new Set(v.map(x=>x+'')).size==6?v:null}
+const POOL=RAW.map(toCells).filter(c=>norms(c));
+
+/* ---------- Сурет салу (canvas) ---------- */
+const stage=$('#stage'),cv=document.createElement('canvas'),ctx=cv.getContext('2d');stage.prepend(cv);
+let W=400,H=300,DPR=1;const S=2.7;
+function fit(){W=stage.clientWidth||400;H=Math.round(W*.75);DPR=Math.min(devicePixelRatio||1,2);cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px'}
+let ORD=[],KIND={},ctr={x:0,y:0},N={},Q=I3,cells=[],labels=[];
+function setNet(cs,lb,hi){
+  cells=cs;labels=lb;ORD=tree(cs);KIND={};lb.forEach(n=>KIND[n]=n==hi?'hl':'n');
+  ctr.x=cs.reduce((s,p)=>s+p.c-cs[0].c,0)/6;ctr.y=cs.reduce((s,p)=>s-(p.r-cs[0].r),0)/6;
+  const ns=norms(cs);N={};cs.forEach((_,i)=>N[lb[i]]=ns[i]);
+  Q=I3;tg=tcur=0;used=false;
+}
+function recolor(hi,ok){labels.forEach(n=>KIND[n]=n==ok?'ok':n==hi?'hl':'n')}
+const FILL={n:'#eef2ff',hl:'#f08a24',ok:'#22c55e'},INK={n:'#1b2440',hl:'#fff',ok:'#fff'};
+function draw(t){
+  ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+  const off=[-ctr.x*(1-t),-ctr.y*(1-t),.5*t],Tot=mm(mm(Rx(cur.p),Ry(-cur.t)),part(Q,t)),sc=H/(2*S),P=poses(ORD,t,off);
+  const sp=v=>{const r=mv(Tot,v);return[W/2+r[0]*sc,H/2-r[1]*sc,r[2]]};
+  const fs=cells.map((_,i)=>{const q=P[i],c=sp(q.p);
+    const pts=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]].map(([x,y])=>sp(add(mv(q.R,[x,y,0]),q.p)));
+    return{i,pts,z:c[2],c,front:mv(Tot,mv(q.R,[0,0,1]))[2]>0,ex:mv(Tot,mv(q.R,[1,0,0])),ey:mv(Tot,mv(q.R,[0,1,0]))}}).sort((a,b)=>a.z-b.z);
+  fs.forEach(f=>{const n=labels[f.i],k=KIND[n];
+    ctx.beginPath();f.pts.forEach((p,j)=>j?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();
+    ctx.fillStyle=f.front?FILL[k]:'#8d99bb';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#1f2937';ctx.lineJoin='round';ctx.stroke();
+    if(!f.front)return;
+    ctx.save();const u=sc/100;ctx.transform(f.ex[0]*u,-f.ex[1]*u,f.ey[0]*u,-f.ey[1]*u,f.c[0],f.c[1]);ctx.scale(1,-1);
+    ctx.fillStyle=INK[k];ctx.font='700 '+(k=='hl'?46:58)+'px "PT Serif",Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText((k=='hl'?'★':'')+n,0,4);if(n==6){ctx.fillRect(k=='hl'?8:-14,34,28,5)}ctx.restore()});
+}
+/* X — төменде, Y — артта */
+function orient(X,Y){
+  const a=N[X],b=N[Y];if(X==Y||Math.abs(dot(a,b))>.5)return null;
+  const c=cross(a,b),D=[0,-1,0],B=[0,0,-1];
+  return{q:mm(cols(D,B,cross(D,B)),tp(cols(a,b,c))),at:{right:c,left:neg(c),front:neg(b),top:neg(a),bottom:a,back:b}};
+}
+const faceAt=v=>+Object.keys(N).find(n=>dot(N[n],v)>.5);
+
+/* камера */
+const VW={front:{t:0,p:0},right:{t:Math.PI/2,p:0},back:{t:Math.PI,p:0},left:{t:-Math.PI/2,p:0},top:{t:0,p:1.55},iso:{t:Math.PI/4,p:.55}};
+const LBL={front:'Алдынан',right:'Оң жағынан',back:'Артынан',left:'Сол жағынан',top:'Үстінен',iso:'3D'};
+const cur={t:0,p:0},goal={t:0,p:0};let drag=null,tg=0,tcur=0,used=false,done=false;
+function setView(k,v){v=v||VW[k];const f=2*Math.PI;goal.t=v.t+Math.round((cur.t-v.t)/f)*f;goal.p=v.p;$('#bd').textContent='Көру бағыты: '+(LBL[k]||'жазба')}
+$('#vb').innerHTML=Object.keys(VW).map(k=>`<button data-v="${k}">${LBL[k]}</button>`).join('');
+$('#vb').onclick=e=>{const k=e.target.dataset.v;if(k)setView(k)};
+function fold(t){tg=t;if(t>.05&&!done)used=true;setView(t?'iso':'front')}
+$('#bFlat').onclick=()=>fold(0);$('#bCube').onclick=()=>fold(1);
+$('#sl').addEventListener('input',e=>{tg=tcur=e.target.value/100;if(tg>.05&&!done)used=true});
+stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;cur.t-=(e.clientX-drag.x)*.01;cur.p=Math.max(-1.55,Math.min(1.55,cur.p+(e.clientY-drag.y)*.01));drag.x=e.clientX;drag.y=e.clientY;goal.t=cur.t;goal.p=cur.p;$('#bd').textContent='Көру бағыты: еркін'});
+['pointerup','pointercancel'].forEach(ev=>stage.addEventListener(ev,()=>drag=null));
+(function loop(){requestAnimationFrame(loop);
+  if(!drag){cur.t+=(goal.t-cur.t)*.12;cur.p+=(goal.p-cur.p)*.12}
+  tcur+=(tg-tcur)*.09;if(Math.abs(tg-tcur)<.002)tcur=tg;$('#sl').value=Math.round(tcur*100);draw(tcur)})();
+new ResizeObserver(fit).observe(stage);fit();
+
+/* ---------- Жалпы ---------- */
+let lv=1,tb=0,score=0,streak=0,K=null,L={x:0,y:0};
+function netFor(){return lv<3?{cells:toCells(CROSS.rows),labels:CROSS.labels}:{cells:POOL[rnd(POOL.length)],labels:shuf([1,2,3,4,5,6])}}
+function tab(i){tb=i;$('#t0').classList.toggle('on',!i);$('#t1').classList.toggle('on',!!i);$('#quiz').hidden=!!i;$('#lab').hidden=!i;i?newLab():newQ()}
+$('#t0').onclick=()=>tab(0);$('#t1').onclick=()=>tab(1);
+$('#lvs').onclick=e=>{const l=e.target.dataset.l;if(!l)return;lv=+l;[...$('#lvs').children].forEach(b=>b.classList.toggle('on',b.dataset.l==l));tab(tb)};
+const NM={right:'оң жақта',left:'сол жақта',front:'алдыңғы жақта (өзіңізге қарай)',top:'үстіңгі жақта'};
+const AIM={right:{t:Math.PI/2,p:.3},left:{t:-Math.PI/2,p:.3},front:{t:0,p:.3},top:{t:0,p:1.3}};
+const sumTxt=a=>`Төменде <b>${faceAt(a.bottom)}</b>, үстінде <b>${faceAt(a.top)}</b>, артта <b>${faceAt(a.back)}</b>, алдыңда <b>${faceAt(a.front)}</b>, сол жақта <b>${faceAt(a.left)}</b>, оң жақта <b>${faceAt(a.right)}</b>.`;
+
+/* ---------- 1-режим: қай жақ? ---------- */
+function newQ(){
+  const n=netFor();let X=lv==1?3:1+rnd(6);
+  setNet(n.cells,n.labels,X);
+  const adj=[1,2,3,4,5,6].filter(l=>l!=X&&Math.abs(dot(N[l],N[X]))<.5),Y=adj[rnd(adj.length)];
+  const o=orient(X,Y),dir=lv==1?'right':['right','left','front','top'][rnd(4)],ans=faceAt(o.at[dir]);
+  const ch=shuf([ans,...shuf([1,2,3,4,5,6].filter(l=>l!=ans)).slice(0,3)]);
+  K={X,Y,o,dir,ans,ch};Q=o.q;done=false;cur.t=goal.t=0;cur.p=goal.p=0;setView('front');
+  $('#quiz').innerHTML=`<div class="bar"><span class="stat">Ұпай: <b id="sc">${score}</b> · Қатарынан: <b id="st">${streak}</b></span></div>
+  <div class="q">Жазбадан куб жинады. <span class="hl">★${X}</span>-жағы үстелде жатыр, ал <b>${Y}</b>-жағы сізден ең алыс (артқы жақ). Сізге қарағанда <u>${NM[dir]}</u> қай жақ болады?</div>
+  <div class="opts">${ch.map((a,i)=>`<button class="opt" data-n="${a}"><span>${'АӘБВ'[i]}</span>${a}</button>`).join('')}</div>
+  <div id="fb"></div><div id="ex"></div><button id="nx" class="go" hidden>Келесі есеп</button>
+  <p class="hint">Кеңес: «Куб» түймесі жазбаны бүктеп көрсетеді, бірақ көмексіз жауап көбірек ұпай береді.</p>`;
+}
+$('#quiz').onclick=e=>{
+  if(e.target.closest('#nx'))return newQ();
+  const b=e.target.closest('.opt');if(!b||done)return;done=true;
+  const ok=+b.dataset.n==K.ans;
+  document.querySelectorAll('.opt').forEach(x=>{if(+x.dataset.n==K.ans)x.classList.add('ok')});if(!ok)b.classList.add('bad');
+  if(ok){streak++;score+=used?5:10+Math.min(streak,5)*2}else streak=0;
+  $('#sc').textContent=score;$('#st').textContent=streak;
+  const fb=$('#fb');fb.style.color=ok?'var(--ok)':'var(--bad)';
+  fb.textContent=ok?(used?'Дұрыс! (көмекпен: 5 ұпай)':'Дұрыс! Көмексіз шештіңіз.'):`Қате. Дұрыс жауап: ${K.ans}.`;
+  $('#ex').innerHTML=sumTxt(K.o.at);
+  recolor(K.X,K.ans);fold(1);setView(K.dir,AIM[K.dir]);$('#nx').hidden=false;
+};
+
+/* ---------- 2-режим: зертхана ---------- */
+function newLab(){const n=netFor();L={x:0,y:0};setNet(n.cells,n.labels,0);cur.t=goal.t=0;cur.p=goal.p=0;setView('front');renderLab('')}
+function renderLab(msg){
+  const row=(k)=>`<div class="row" data-k="${k}">${[1,2,3,4,5,6].map(n=>`<button data-n="${n}" class="${L[k]==n?'on':''}">${n}</button>`).join('')}</div>`;
+  $('#lab').innerHTML=`<div class="q">Кубты өзіңіз орналастырыңыз</div><div>Үстелдегі (төменгі) жақ:</div>${row('x')}<div>Артқы жақ (сізден ең алыс):</div>${row('y')}
+  <div id="ex">${msg||'Екі көрші жақты таңдаңыз, куб соған қарай бұрылады.'}</div><div class="row"><button id="ln" class="go">Жаңа жазба</button></div>`;
+}
+$('#lab').onclick=e=>{
+  if(e.target.closest('#ln'))return newLab();
+  const b=e.target.closest('.row button'),k=b&&b.parentNode.dataset.k;if(!k)return;
+  L[k]=+b.dataset.n;let msg='';
+  recolor(L.x,0);
+  if(L.x&&L.y){const o=orient(L.x,L.y);
+    if(!o){msg='Бұл екі жақ көрші емес (бірдей немесе қарама-қарсы). Басқа жақ таңдаңыз.'}
+    else{Q=o.q;msg=sumTxt(o.at);done=true;fold(1)}}
+  renderLab(msg);
+};
+tab(0);
+</script>
+</body>
+</html>
